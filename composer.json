@@ -21,7 +21,8 @@
         }
     ],
     "require": {
-        "php": "^8.3"
+        "php": "^8.3",
+        "symfony/http-kernel": "^7.1"
     },
     "require-dev": {
         "captainhook/captainhook": "^5.23",
