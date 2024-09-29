@@ -1,5 +1,5 @@
 {
-    "name": "gember/symfony-bundle",
+    "name": "gember/event-sourcing-symfony-bundle",
     "description": "Symfony Bundle for Gember Event Sourcing (gember/event-sourcing)",
     "license": "MIT",
     "type": "library",
@@ -22,15 +22,19 @@
     ],
     "require": {
         "php": "^8.3",
-        "symfony/http-kernel": "^7.1",
-        "gember/event-sourcing": "dev-main",
-        "gember/rdbms-event-store-doctrine-dbal": "dev-main",
         "gember/cache-psr": "dev-main",
+        "gember/event-sourcing": "dev-main",
         "gember/file-finder-symfony": "dev-main",
         "gember/file-reflector-roave": "dev-main",
         "gember/identity-generator-symfony": "dev-main",
         "gember/message-bus-symfony": "dev-main",
-        "gember/serializer-symfony": "dev-main"
+        "gember/rdbms-event-store-doctrine-dbal": "dev-main",
+        "gember/serializer-symfony": "dev-main",
+        "symfony/config": "^7.1",
+        "symfony/console": "^7.1",
+        "symfony/dependency-injection": "^7.1",
+        "symfony/event-dispatcher": "^7.1",
+        "symfony/http-kernel": "^7.1"
     },
     "require-dev": {
         "captainhook/captainhook": "^5.23",
@@ -41,12 +45,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Gember\\SymfonyBundle\\": "src/"
+            "Gember\\EventSourcingSymfonyBundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Gember\\SymfonyBundle\\Test\\": "tests/"
+            "Gember\\EventSourcingSymfonyBundle\\Test\\": "tests/"
         }
     },
     "config": {
