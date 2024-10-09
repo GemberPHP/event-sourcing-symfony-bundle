@@ -37,7 +37,7 @@ services:
       - '@gember.rdbms_event_store_doctrine_dbal.table_schema.event_store_relation_table_schema'
       - '@gember.rdbms_event_store_doctrine_dbal.doctrine_dbal_rdbms_event_factory'
 
-  gember.doctrine.dbal.connection: ~
+  gember.doctrine.dbal.connection: '@doctrine.dbal.default_connection'
 
   gember.rdbms_event_store_doctrine_dbal.table_schema.event_store_table_schema:
     class: Gember\RdbmsEventStoreDoctrineDbal\TableSchema\EventStoreTableSchema
@@ -193,7 +193,7 @@ services:
     arguments:
       - '@gember.symfony.component.messenger.message_bus.event_bus'
 
-  gember.symfony.component.messenger.message_bus.event_bus: ~
+  gember.symfony.component.messenger.message_bus.event_bus: '@event.bus'
 
   gember.event_sourcing.util.serialization.serializer.serializer:
     class: Gember\EventSourcing\Util\Serialization\Serializer\Stacked\StackedSerializer
@@ -211,7 +211,7 @@ services:
     arguments:
       - '@gember.symfony.component.serializer.serializer_interface'
 
-  gember.symfony.component.serializer.serializer_interface: ~
+  gember.symfony.component.serializer.serializer_interface: '@serializer'
 
   gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer:
     class: Gember\EventSourcing\Util\String\FriendlyClassNamer\Native\NativeFriendlyClassNamer
