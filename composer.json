@@ -48,11 +48,6 @@
             "Gember\\EventSourcingSymfonyBundle\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Gember\\EventSourcingSymfonyBundle\\Test\\": "tests/"
-        }
-    },
     "config": {
         "sort-packages": true
     },
