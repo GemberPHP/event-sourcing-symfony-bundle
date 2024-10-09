@@ -8,9 +8,11 @@ use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Override;
 
 final class GemberEventSourcingBundle extends AbstractBundle
 {
+    #[Override]
     public function configure(DefinitionConfigurator $definition): void
     {
         $definition->rootNode()
@@ -82,14 +84,14 @@ final class GemberEventSourcingBundle extends AbstractBundle
             ->end();
     }
 
+    #[Override]
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $container->import(__DIR__ . '/../config/services.yaml');
         $services = $container->services();
 
         if ($config['cache']['enabled'] ?? false) {
-            $services->get('gember.event_sourcing.registry.cached.cached_event_registry_decorator')
-                ->decorate('gember.event_sourcing.registry.event_registry');
+            $services->get('gember.event_sourcing.registry.cached.cached_event_registry_decorator')                ->decorate('gember.event_sourcing.registry.event_registry');
 
             $services->get('gember.event_sourcing.util.resolver.cached.cached_attribute_resolver_decorator')
                 ->decorate('gember.event_sourcing.util.attribute.resolver.attribute_resolver');
@@ -118,24 +120,24 @@ final class GemberEventSourcingBundle extends AbstractBundle
 
         $services->alias(
             'gember.symfony.component.messenger.message_bus.event_bus',
-            ltrim($config['message_bus']['symfony']['event_bus'] ?? 'event.bus', '@')
+            ltrim($config['message_bus']['symfony']['event_bus'] ?? 'event.bus', '@'),
         );
 
         $services->alias(
             'gember.doctrine.dbal.connection',
-            ltrim($config['event_store']['rdbms']['doctrine_dbal']['connection'] ?? 'Doctrine\DBAL\Connection', '@')
+            ltrim($config['event_store']['rdbms']['doctrine_dbal']['connection'] ?? 'Doctrine\DBAL\Connection', '@'),
         );
 
         if (!empty($config['generator']['identity']['service'] ?? null)) {
             $services->alias(
                 'gember.event_sourcing.util.generator.identity.identity_generator',
-                ltrim($config['generator']['identity']['service'], '@')
+                ltrim($config['generator']['identity']['service'], '@'),
             );
         }
 
         $services->alias(
             'gember.symfony.component.serializer.serializer_interface',
-            ltrim($config['serializer']['symfony']['serializer'] ?? 'Symfony\Component\Serializer\SerializerInterface', '@')
+            ltrim($config['serializer']['symfony']['serializer'] ?? 'Symfony\Component\Serializer\SerializerInterface', '@'),
         );
     }
 }
