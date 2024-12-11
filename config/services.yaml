@@ -2,7 +2,7 @@ services:
   _defaults:
     public: false
 
-  gember.event_sourcing.event_store.event_store:
+  Gember\EventSourcing\EventStore\EventStore:
     class: Gember\EventSourcing\EventStore\Rdbms\RdbmsEventStore
     arguments:
       - '@gember.event_sourcing.resolver.domain_event.normalized_event_name.normalized_event_name_resolver'
@@ -73,7 +73,7 @@ services:
   gember.event_sourcing.repository.domain_context_repository:
     class: Gember\EventSourcing\Repository\EventSourced\EventSourcedDomainContextRepository
     arguments:
-      - '@gember.event_sourcing.event_store.event_store'
+      - '@Gember\EventSourcing\EventStore\EventStore'
       - '@gember.event_sourcing.event_store.domain_event_envelope_factory'
       - '@gember.event_sourcing.resolver.domain_context.subscribed_events.subscribed_events_resolver'
       - '@gember.event_sourcing.util.messaging.message_bus.event_bus'
