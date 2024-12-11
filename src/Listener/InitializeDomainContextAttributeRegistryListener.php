@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Gember\EventSourcingSymfonyBundle\Listener;
 
 use Gember\EventSourcing\DomainContext\DomainContextAttributeRegistry;
-use Gember\EventSourcing\DomainContext\EventSourcedDomainContext;
 use Gember\EventSourcing\Resolver\DomainContext\DomainIdProperties\DomainIdPropertiesResolver;
 use Gember\EventSourcing\Resolver\DomainContext\SubscriberMethodForEvent\SubscriberMethodForEventResolver;
 use Symfony\Component\Console\ConsoleEvents;
@@ -15,15 +14,8 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Override;
 
-/**
- * @template T of EventSourcedDomainContext
- */
 final readonly class InitializeDomainContextAttributeRegistryListener implements EventSubscriberInterface
 {
-    /**
-     * @param DomainIdPropertiesResolver<T> $domainIdPropertiesResolver
-     * @param SubscriberMethodForEventResolver<T> $subscriberMethodForEventResolver
-     */
     public function __construct(
         private DomainIdPropertiesResolver $domainIdPropertiesResolver,
         private SubscriberMethodForEventResolver $subscriberMethodForEventResolver,
