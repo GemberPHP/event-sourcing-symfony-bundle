@@ -93,6 +93,16 @@ When all prerequisites are met, it's time to install the bundle package itself:
 composer require gember/event-sourcing-symfony-bundle 
 ```
 
+## Database
+In order to persist all domain events in database, a running SQL database is needed.
+The event store requires two tables. Schema is available in either raw SQL or in a migration file format:
+
+Raw SQL schema: https://github.com/GemberPHP/rdbms-event-store-doctrine-dbal/blob/main/resources/schema.sql
+
+Migrations:
+- Doctrine migrations: https://github.com/GemberPHP/rdbms-event-store-doctrine-dbal/blob/main/resources/migrations/doctrine
+- Phinx migrations: https://github.com/GemberPHP/rdbms-event-store-doctrine-dbal/tree/main/resources/migrations/phinx
+
 ## Good to go! 
 Check the main package [gember/event-sourcing](https://github.com/GemberPHP/event-sourcing) or 
 the demo application [gember/example-event-sourcing-dcb](https://github.com/GemberPHP/example-event-sourcing-dcb) for examples.
