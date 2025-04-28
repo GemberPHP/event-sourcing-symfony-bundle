@@ -1,7 +1,4 @@
 # 🫚 Gember Event Sourcing Symfony Bundle
-[![Build Status](https://scrutinizer-ci.com/g/GemberPHP/event-sourcing-symfony-bundle/badges/build.png?b=main)](https://github.com/GemberPHP/event-sourcing-symfony-bundle/actions)
-[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/GemberPHP/event-sourcing-symfony-bundle.svg?style=flat)](https://scrutinizer-ci.com/g/GemberPHP/event-sourcing-symfony-bundle/code-structure)
-[![Quality Score](https://img.shields.io/scrutinizer/g/GemberPHP/event-sourcing-symfony-bundle.svg?style=flat)](https://scrutinizer-ci.com/g/GemberPHP/event-sourcing-symfony-bundle)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.3-8892BF.svg?style=flat)](http://www.php.net)
 
