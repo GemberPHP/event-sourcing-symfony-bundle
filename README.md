@@ -4,94 +4,82 @@
 
 Gember Event Sourcing Symfony Bundle for ([gember/event-sourcing](https://github.com/GemberPHP/event-sourcing)).
 
-## Prerequisites
+## Installation
+Install the Symfony Bundle with composer:
+
+```bash
+composer require gember/event-sourcing-symfony-bundle 
+```
+
 This package requires Symfony `^7.1`.
 
-Several additional packages should be installed and configured in Symfony as well:
+## Configuration
+This package installs _Gember Event Sourcing_ with all required dependency adapters.
+Some of these adapters need to be configured.
 
-#### Symfony Messenger (`symfony/messenger`)
-At least one message bus should be configured, with the name `@event.bus`. 
-
-When this bus is configured, Gember Event Sourcing works out of the box.
-However, when a different event bus is preferred, it can be overwritten by configuration (`gember_event_sourcing.yaml`).
+By default, it uses the following configuration (`gember_event_sourcing.yaml`):
 ```yaml
 gember_event_sourcing:
     message_bus:
         symfony:
             event_bus: '@event.bus'
-```
-Note: It must be a service implementing `Symfony\Component\Messenger\MessageBusInterface`.
-
-#### Symfony Cache (`symfony/cache`)
-Gember Event Sourcing makes use of `@cache.app`. 
-This cache service is automatically configured when using Symfony framework including `symfony/cache`.
-
-When this cache service is configured, Gember Event Sourcing works out of the box.
-However, when a different cache pool is preferred, it can be overwritten by configuration (`gember_event_sourcing.yaml`):
-```yaml
-gember_event_sourcing:
     cache:
         enabled: true
         psr6: '@cache.app'
-        
+
         # Or set a PSR-16 compatible cache layer of your choice
         # psr16: '@some.psr16.service'
-```
-Note: It must be a service implementing `Psr\Cache\CacheItemPoolInterface` (PSR-6) or `Psr\SimpleCache\CacheInterface` (PSR-16).
-
-#### Symfony Serializer (`symfony/serializer`)
-Gember Event Sourcing makes use of `@serializer`.
-This serializer service is automatically configured when using Symfony framework including `symfony/serializer`.
-
-When this serializer service is configured, Gember Event Sourcing works out of the box.
-However, when a different serializer is preferred, it can be overwritten by configuration (`gember_event_sourcing.yaml`):
-```yaml
-gember_event_sourcing:
     serializer:
         symfony:
-          serializer: '@serializer'
+            serializer: '@serializer'
+    event_store:
+        rdbms:
+            doctrine_dbal:
+                connection: '@doctrine.dbal.default_connection'
+    generator:
+        identity:
+            # Use Gember alias of @Symfony\Component\Uid\Factory\UuidFactory:
+            service: '@gember.identity_generator_symfony.uuid.symfony_uuid_identity_generator'
+            
+            # Or use Gember alias of @Symfony\Component\Uid\Factory\UlidFactory:
+            # service: '@gember.identity_generator_symfony.ulid.symfony_ulid_identity_generator'
+    registry:
+        event_registry:
+            reflector:
+                path: '%kernel.project_dir%/src' 
 ```
-Note: It must be a service implementing `Symfony\Component\Serializer\SerializerInterface`.
 
-#### Doctrine DBAL/ORM (`doctrine/dbal`, `doctrine/orm`)
-Gember Event Sourcing makes use of `@doctrine.dbal.default_connection`.
+You can override any of these defaults however you like.
+
+## Required dependencies
+Some of the required dependencies also need to be configured separately.
+
+### Symfony Messenger (`symfony/messenger`)
+At least one message bus should be configured, with the name `@event.bus`. 
+
+When this bus is configured, _Gember Event Sourcing_ works out of the box.
+However, when a different event bus is preferred, it must be a service implementing `Symfony\Component\Messenger\MessageBusInterface`.
+
+### Symfony Cache (`symfony/cache`)
+_Gember Event Sourcing_ makes use of `@cache.app`. 
+This cache service is automatically configured when using Symfony framework including `symfony/cache`.
+
+When this cache service is configured, _Gember Event Sourcing_ works out of the box.
+However, when a different cache pool is preferred, it must be a service implementing `Psr\Cache\CacheItemPoolInterface` (PSR-6) or `Psr\SimpleCache\CacheInterface` (PSR-16).
+
+### Symfony Serializer (`symfony/serializer`)
+_Gember Event Sourcing_ makes use of `@serializer`.
+This serializer service is automatically configured when using Symfony framework including `symfony/serializer`.
+
+When this serializer service is configured, _Gember Event Sourcing_ works out of the box.
+However, when a different serializer is preferred, it must be a service implementing `Symfony\Component\Serializer\SerializerInterface`.
+
+### Doctrine DBAL/ORM (`doctrine/dbal`, `doctrine/orm`)
+_Gember Event Sourcing_ makes use of `@doctrine.dbal.default_connection`.
 This connection service is automatically configured when using Symfony framework including `doctrine/dbal` or `doctrine/orm`.
 
-When this connection service is configured, Gember Event Sourcing works out of the box.
-However, when a different Doctrine connection is preferred, it can be overwritten by configuration (`gember_event_sourcing.yaml`):
-```yaml
-gember_event_sourcing:
-  event_store:
-    rdbms:
-      doctrine_dbal:
-        connection: '@doctrine.dbal.default_connection'
-```
-Note: It must be a service implementing `Doctrine\DBAL\Connection`.
-
-#### Symfony UID (`symfony/uid`)
-Gember Event Sourcing makes use of `@Symfony\Component\Uid\Factory\UuidFactory` or `Symfony\Component\Uid\Factory\UlidFactory`.
-
-These factories are automatically configured when using Symfony framework including `symfony/uid`.
-
-By default, the UUID factory is used in Gember Event Sourcing. 
-However, if the ULID factory is preferred, it can be overwritten by configuration (`gember_event_sourcing.yaml`):
-```yaml
-gember_event_sourcing:
-  generator:
-    identity:
-      # Use Gember alias of @Symfony\Component\Uid\Factory\UuidFactory:
-      service: '@gember.identity_generator_symfony.uuid.symfony_uuid_identity_generator'
-
-      # Or use Gember alias of @Symfony\Component\Uid\Factory\UlidFactory:
-      # service: '@gember.identity_generator_symfony.ulid.symfony_ulid_identity_generator'
-```
-
-## Installation
-When all prerequisites are met, it's time to install the bundle package itself:
-
-```bash
-composer require gember/event-sourcing-symfony-bundle 
-```
+When this connection service is configured, _Gember Event Sourcing_ works out of the box.
+However, when a different Doctrine connection is preferred, it must be a service implementing `Doctrine\DBAL\Connection`.
 
 ## Database
 In order to persist all domain events in database, a running SQL database is needed.
