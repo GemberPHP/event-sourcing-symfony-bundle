@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Gember\EventSourcingSymfonyBundle\Listener;
 
-use Gember\EventSourcing\DomainContext\DomainContextAttributeRegistry;
-use Gember\EventSourcing\Resolver\DomainContext\DomainIdProperties\DomainIdPropertiesResolver;
-use Gember\EventSourcing\Resolver\DomainContext\SubscriberMethodForEvent\SubscriberMethodForEventResolver;
+use Gember\EventSourcing\UseCase\UseCaseAttributeRegistry;
+use Gember\EventSourcing\Resolver\UseCase\DomainIdProperties\DomainIdPropertiesResolver;
+use Gember\EventSourcing\Resolver\UseCase\SubscriberMethodForEvent\SubscriberMethodForEventResolver;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Override;
 
-final readonly class InitializeDomainContextAttributeRegistryListener implements EventSubscriberInterface
+final readonly class InitializeUseCaseAttributeRegistryListener implements EventSubscriberInterface
 {
     public function __construct(
         private DomainIdPropertiesResolver $domainIdPropertiesResolver,
@@ -35,7 +35,7 @@ final readonly class InitializeDomainContextAttributeRegistryListener implements
 
     public function onEvent(ConsoleCommandEvent|RequestEvent $event): void
     {
-        DomainContextAttributeRegistry::initialize(
+        UseCaseAttributeRegistry::initialize(
             $this->domainIdPropertiesResolver,
             $this->subscriberMethodForEventResolver,
         );
