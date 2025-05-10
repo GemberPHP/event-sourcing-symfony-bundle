@@ -8,7 +8,6 @@ use ShipMonk\ComposerDependencyAnalyser\Config\ErrorType;
 $config = new Configuration();
 
 return $config
-    ->ignoreErrorsOnPackage('gember/cache-psr', [ErrorType::UNUSED_DEPENDENCY])
     ->ignoreErrorsOnPackage('gember/file-finder-symfony', [ErrorType::UNUSED_DEPENDENCY])
     ->ignoreErrorsOnPackage('gember/file-reflector-roave', [ErrorType::UNUSED_DEPENDENCY])
     ->ignoreErrorsOnPackage('gember/identity-generator-symfony', [ErrorType::UNUSED_DEPENDENCY])
