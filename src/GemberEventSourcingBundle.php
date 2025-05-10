@@ -111,7 +111,6 @@ final class GemberEventSourcingBundle extends AbstractBundle
             }
         } else {
             // Remove all cache related service definitions
-            $services->remove('gember.event_sourcing.util.cache.cache');
             $services->remove('gember.symfony.component.cache.psr16_cache');
             $services->remove('gember.psr.cache.cache_item_pool_interface');
         }

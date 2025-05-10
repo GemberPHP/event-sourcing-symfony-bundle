@@ -68,7 +68,7 @@ services:
     #decorates: gember.event_sourcing.registry.event_registry
     arguments:
       - '@.inner'
-      - '@gember.event_sourcing.util.cache.cache'
+      - '@gember.psr.simple_cache.cache_interface'
 
   gember.event_sourcing.repository.use_case_repository:
     class: Gember\EventSourcing\Repository\EventSourced\EventSourcedUseCaseRepository
@@ -142,11 +142,6 @@ services:
     arguments:
       - '@.inner'
       - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
-      - '@gember.event_sourcing.util.cache.cache'
-
-  gember.event_sourcing.util.cache.cache:
-    class: Gember\CachePsr\PsrSimpleCache
-    arguments:
       - '@gember.psr.simple_cache.cache_interface'
 
   gember.psr.simple_cache.cache_interface: '@gember.symfony.component.cache.psr16_cache'
