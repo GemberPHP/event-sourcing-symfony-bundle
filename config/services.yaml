@@ -13,7 +13,7 @@ services:
   gember.event_sourcing.event_store.domain_event_envelope_factory:
     class: Gember\EventSourcing\EventStore\DomainEventEnvelopeFactory
     arguments:
-      - '@gember.event_sourcing.resolver.domain_event.domain_ids.domain_ids_resolver'
+      - '@gember.event_sourcing.resolver.domain_event.domain_tags.domain_tags_resolver'
       - '@gember.event_sourcing.util.generator.identity.identity_generator'
       - '@gember.event_sourcing.util.time.clock.clock'
 
@@ -80,8 +80,8 @@ services:
 
   Gember\EventSourcing\Repository\UseCaseRepository: '@gember.event_sourcing.repository.use_case_repository'
 
-  gember.event_sourcing.resolver.use_case.domain_id_properties.domain_id_properties_resolver:
-    class: Gember\EventSourcing\Resolver\UseCase\DomainIdProperties\Attribute\AttributeDomainIdPropertiesResolver
+  gember.event_sourcing.resolver.use_case.domain_tag_properties.domain_tag_properties_resolver:
+    class: Gember\EventSourcing\Resolver\UseCase\DomainTagProperties\Attribute\AttributeDomainTagsPropertiesResolver
     arguments:
       - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
 
@@ -95,21 +95,21 @@ services:
     arguments:
       - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
 
-  gember.event_sourcing.resolver.domain_event.domain_ids.domain_ids_resolver:
-    class: Gember\EventSourcing\Resolver\DomainEvent\DomainIds\Stacked\StackedDomainIdsResolver
+  gember.event_sourcing.resolver.domain_event.domain_tags.domain_tags_resolver:
+    class: Gember\EventSourcing\Resolver\DomainEvent\DomainTags\Stacked\StackedDomainTagsResolver
     arguments:
       - [
-        '@gember.event_sourcing.resolver.domain_event.domain_ids.attribute.attribute_domain_ids_resolver',
-        '@gember.event_sourcing.resolver.domain_event.domain_ids.interface.interface_domain_ids_resolver'
+        '@gember.event_sourcing.resolver.domain_event.domain_tags.attribute.attribute_domain_tags_resolver',
+        '@gember.event_sourcing.resolver.domain_event.domain_tags.interface.interface_domain_tags_resolver'
       ]
 
-  gember.event_sourcing.resolver.domain_event.domain_ids.attribute.attribute_domain_ids_resolver:
-    class: Gember\EventSourcing\Resolver\DomainEvent\DomainIds\Attribute\AttributeDomainIdsResolver
+  gember.event_sourcing.resolver.domain_event.domain_tags.attribute.attribute_domain_tags_resolver:
+    class: Gember\EventSourcing\Resolver\DomainEvent\DomainTags\Attribute\AttributeDomainTagsResolver
     arguments:
       - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
 
-  gember.event_sourcing.resolver.domain_event.domain_ids.interface.interface_domain_ids_resolver:
-    class: Gember\EventSourcing\Resolver\DomainEvent\DomainIds\Interface\InterfaceDomainIdsResolver
+  gember.event_sourcing.resolver.domain_event.domain_tags.interface.interface_domain_tags_resolver:
+    class: Gember\EventSourcing\Resolver\DomainEvent\DomainTags\Interface\InterfaceDomainTagsResolver
 
   gember.event_sourcing.resolver.domain_event.normalized_event_name.normalized_event_name_resolver:
     class: Gember\EventSourcing\Resolver\DomainEvent\NormalizedEventName\Stacked\StackedNormalizedEventNameResolver
@@ -223,5 +223,5 @@ services:
     class: Gember\EventSourcingSymfonyBundle\Listener\InitializeUseCaseAttributeRegistryListener
     tags: ['kernel.event_subscriber']
     arguments:
-      - '@gember.event_sourcing.resolver.use_case.domain_id_properties.domain_id_properties_resolver'
+      - '@gember.event_sourcing.resolver.use_case.domain_tag_properties.domain_tag_properties_resolver'
       - '@gember.event_sourcing.resolver.use_case.subscriber_method_for_event.subscriber_method_for_event_resolver'
