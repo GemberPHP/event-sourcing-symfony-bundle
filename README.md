@@ -23,6 +23,7 @@ gember_event_sourcing:
     message_bus:
         symfony:
             event_bus: '@event.bus'
+            command_bus: '@command.bus'
     cache:
         enabled: true
         psr6: '@cache.app'
@@ -44,7 +45,10 @@ gember_event_sourcing:
             # Or use Gember alias of @Symfony\Component\Uid\Factory\UlidFactory:
             # service: '@gember.identity_generator_symfony.ulid.symfony_ulid_identity_generator'
     registry:
-        event_registry:
+        event:
+            reflector:
+                path: '%kernel.project_dir%/src'
+        command_handler:
             reflector:
                 path: '%kernel.project_dir%/src' 
 ```

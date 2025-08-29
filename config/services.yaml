@@ -70,6 +70,33 @@ services:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
 
+  gember.event_sourcing.registry.command_handler.command_handler_registry:
+    class: Gember\EventSourcing\Registry\CommandHandler\Reflector\ReflectorCommandHandlerRegistry
+    arguments:
+      - '@gember.event_sourcing.util.file.finder.finder'
+      - '@gember.event_sourcing.util.file.reflector.reflector'
+      - '@gember.event_sourcing.resolver.use_case.command_handlers.command_handlers_resolver'
+
+  gember.event_sourcing.registry.command_handler.cached.cached_command_handler_registry_decorator:
+    class: Gember\EventSourcing\Registry\CommandHandler\Cached\CachedCommandHandlerRegistryDecorator
+    #decorates: gember.event_sourcing.registry.command_handler.command_handler_registry
+    arguments:
+      - '@.inner'
+      - '@gember.psr.simple_cache.cache_interface'
+      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
+
+  gember.event_sourcing.resolver.use_case.command_handlers.command_handlers_resolver:
+    class: Gember\EventSourcing\Resolver\UseCase\CommandHandlers\Attribute\AttributeCommandHandlersResolver
+    arguments:
+      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
+
+  Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler:
+    class: Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler
+    arguments:
+      - '@gember.event_sourcing.repository.use_case_repository'
+      - '@gember.event_sourcing.registry.command_handler.command_handler_registry'
+      - '@gember.event_sourcing.resolver.domain_message.domain_tags.domain_tags_resolver'
+
   gember.event_sourcing.repository.use_case_repository:
     class: Gember\EventSourcing\Repository\EventSourced\EventSourcedUseCaseRepository
     arguments:

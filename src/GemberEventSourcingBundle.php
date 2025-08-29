@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Gember\EventSourcingSymfonyBundle;
 
+use Gember\EventSourcing\UseCase\Attribute\DomainCommandHandler;
+use Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Override;
+use ReflectionMethod;
 
 final class GemberEventSourcingBundle extends AbstractBundle
 {
@@ -32,11 +36,24 @@ final class GemberEventSourcingBundle extends AbstractBundle
                         ->end()
                     ->end()
                 ->end()
-                ->arrayNode('event_registry')
+                ->arrayNode('registry')
                     ->children()
-                        ->arrayNode('reflector')
+                        ->arrayNode('event')
                             ->children()
-                                ->scalarNode('path')->end()
+                                ->arrayNode('reflector')
+                                    ->children()
+                                        ->scalarNode('path')->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('command_handler')
+                            ->children()
+                                ->arrayNode('reflector')
+                                    ->children()
+                                        ->scalarNode('path')->end()
+                                    ->end()
+                                ->end()
                             ->end()
                         ->end()
                     ->end()
@@ -46,6 +63,7 @@ final class GemberEventSourcingBundle extends AbstractBundle
                         ->arrayNode('symfony')
                             ->children()
                                 ->scalarNode('event_bus')->end()
+                                ->scalarNode('command_bus')->end()
                             ->end()
                         ->end()
                     ->end()
@@ -91,8 +109,11 @@ final class GemberEventSourcingBundle extends AbstractBundle
         $services = $container->services();
 
         if ($config['cache']['enabled'] ?? false) {
-            $services->get('gember.event_sourcing.registry.cached.cached_event_registry_decorator')
-                ->decorate('gember.event_sourcing.registry.event_registry');
+            $services->get('gember.event_sourcing.registry.event.cached.cached_event_registry_decorator')
+                ->decorate('gember.event_sourcing.registry.event.event_registry');
+
+            $services->get('gember.event_sourcing.registry.command_handler.cached.cached_command_handler_registry_decorator')
+                ->decorate('gember.event_sourcing.registry.command_handler.command_handler_registry');
 
             $services->get('gember.event_sourcing.util.resolver.cached.cached_attribute_resolver_decorator')
                 ->decorate('gember.event_sourcing.util.attribute.resolver.attribute_resolver');
@@ -115,8 +136,11 @@ final class GemberEventSourcingBundle extends AbstractBundle
             $services->remove('gember.psr.cache.cache_item_pool_interface');
         }
 
-        $services->get('gember.event_sourcing.registry.event_registry')
-            ->arg('$path', $config['registry']['event_registry']['reflector']['path'] ?? '%kernel.project_dir%/src');
+        $services->get('gember.event_sourcing.registry.event.event_registry')
+            ->arg('$path', $config['registry']['event']['reflector']['path'] ?? '%kernel.project_dir%/src');
+
+        $services->get('gember.event_sourcing.registry.command_handler.command_handler_registry')
+            ->arg('$path', $config['registry']['command_handler']['reflector']['path'] ?? '%kernel.project_dir%/src');
 
         if (!empty($config['message_bus']['symfony']['event_bus'] ?? null)) {
             $services->alias(
@@ -145,5 +169,22 @@ final class GemberEventSourcingBundle extends AbstractBundle
                 ltrim($config['serializer']['symfony']['serializer'], '@'),
             );
         }
+
+        $builder->registerAttributeForAutoconfiguration(
+            DomainCommandHandler::class,
+            function (ChildDefinition $definition, DomainCommandHandler $attribute, ReflectionMethod $reflector) use ($builder, $config): void {
+                $parameter = $reflector->getParameters()[0];
+
+                $bus = $config['message_bus']['symfony']['command_bus'] ?? 'command.bus';
+
+                $builder
+                    ->getDefinition(UseCaseCommandHandler::class)
+                    ->addTag('messenger.message_handler', [
+                        'bus' => str_starts_with($bus, '@') ? substr($bus, 1) : $bus,
+                        'handles' => $parameter->getType()->getName(),
+                        'method' => '__invoke',
+                    ]);
+            },
+        );
     }
 }
