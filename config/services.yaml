@@ -13,7 +13,7 @@ services:
   gember.event_sourcing.event_store.domain_event_envelope_factory:
     class: Gember\EventSourcing\EventStore\DomainEventEnvelopeFactory
     arguments:
-      - '@gember.event_sourcing.resolver.domain_event.domain_tags.domain_tags_resolver'
+      - '@gember.event_sourcing.resolver.domain_message.domain_tags.domain_tags_resolver'
       - '@gember.event_sourcing.util.generator.identity.identity_generator'
       - '@gember.event_sourcing.util.time.clock.clock'
 
@@ -21,7 +21,7 @@ services:
     class: Gember\EventSourcing\EventStore\Rdbms\RdbmsDomainEventEnvelopeFactory
     arguments:
       - '@gember.event_sourcing.util.serialization.serializer.serializer'
-      - '@gember.event_sourcing.registry.event_registry'
+      - '@gember.event_sourcing.registry.event.event_registry'
 
   gember.event_sourcing.event_store.rdbms.rdbms_event_factory:
     class: Gember\EventSourcing\EventStore\Rdbms\RdbmsEventFactory
@@ -56,16 +56,16 @@ services:
   gember.rdbms_event_store_doctrine_dbal.doctrine_dbal_rdbms_event_factory:
     class: Gember\RdbmsEventStoreDoctrineDbal\DoctrineDbalRdbmsEventFactory
 
-  gember.event_sourcing.registry.event_registry:
-    class: Gember\EventSourcing\Registry\Reflector\ReflectorEventRegistry
+  gember.event_sourcing.registry.event.event_registry:
+    class: Gember\EventSourcing\Registry\Event\Reflector\ReflectorEventRegistry
     arguments:
       - '@gember.event_sourcing.util.file.finder.finder'
       - '@gember.event_sourcing.util.file.reflector.reflector'
       - '@gember.event_sourcing.resolver.domain_event.normalized_event_name.normalized_event_name_resolver'
 
-  gember.event_sourcing.registry.cached.cached_event_registry_decorator:
-    class: Gember\EventSourcing\Registry\Cached\CachedEventRegistryDecorator
-    #decorates: gember.event_sourcing.registry.event_registry
+  gember.event_sourcing.registry.event.cached.cached_event_registry_decorator:
+    class: Gember\EventSourcing\Registry\Event\Cached\CachedEventRegistryDecorator
+    #decorates: gember.event_sourcing.registry.event.event_registry
     arguments:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
@@ -95,21 +95,21 @@ services:
     arguments:
       - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
 
-  gember.event_sourcing.resolver.domain_event.domain_tags.domain_tags_resolver:
-    class: Gember\EventSourcing\Resolver\DomainEvent\DomainTags\Stacked\StackedDomainTagsResolver
+  gember.event_sourcing.resolver.domain_message.domain_tags.domain_tags_resolver:
+    class: Gember\EventSourcing\Resolver\DomainMessage\DomainTags\Stacked\StackedDomainTagsResolver
     arguments:
       - [
-        '@gember.event_sourcing.resolver.domain_event.domain_tags.attribute.attribute_domain_tags_resolver',
-        '@gember.event_sourcing.resolver.domain_event.domain_tags.interface.interface_domain_tags_resolver'
+        '@gember.event_sourcing.resolver.domain_message.domain_tags.attribute.attribute_domain_tags_resolver',
+        '@gember.event_sourcing.resolver.domain_message.domain_tags.interface.interface_domain_tags_resolver'
       ]
 
-  gember.event_sourcing.resolver.domain_event.domain_tags.attribute.attribute_domain_tags_resolver:
-    class: Gember\EventSourcing\Resolver\DomainEvent\DomainTags\Attribute\AttributeDomainTagsResolver
+  gember.event_sourcing.resolver.domain_message.domain_tags.attribute.attribute_domain_tags_resolver:
+    class: Gember\EventSourcing\Resolver\DomainMessage\DomainTags\Attribute\AttributeDomainTagsResolver
     arguments:
       - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
 
-  gember.event_sourcing.resolver.domain_event.domain_tags.interface.interface_domain_tags_resolver:
-    class: Gember\EventSourcing\Resolver\DomainEvent\DomainTags\Interface\InterfaceDomainTagsResolver
+  gember.event_sourcing.resolver.domain_message.domain_tags.interface.interface_domain_tags_resolver:
+    class: Gember\EventSourcing\Resolver\DomainMessage\DomainTags\Interface\InterfaceDomainTagsResolver
 
   gember.event_sourcing.resolver.domain_event.normalized_event_name.normalized_event_name_resolver:
     class: Gember\EventSourcing\Resolver\DomainEvent\NormalizedEventName\Stacked\StackedNormalizedEventNameResolver
