@@ -189,12 +189,7 @@ services:
     class: Gember\FileFinderSymfony\SymfonyFinderFactory
 
   gember.event_sourcing.util.file.reflector.reflector:
-    class: Gember\FileReflectorRoave\RoaveBetterReflectionReflector
-    arguments:
-      - '@gember.file_reflector_roave.roave_better_reflection_factory'
-
-  gember.file_reflector_roave.roave_better_reflection_factory:
-    class: Gember\FileReflectorRoave\RoaveBetterReflectionFactory
+    class: Gember\EventSourcing\Util\File\Reflector\Native\NativeReflector
 
   gember.event_sourcing.util.generator.identity.identity_generator: '@gember.identity_generator_symfony.uuid.symfony_uuid_identity_generator'
 
