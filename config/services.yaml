@@ -181,12 +181,7 @@ services:
   gember.psr.cache.cache_item_pool_interface: ~
 
   gember.event_sourcing.util.file.finder.finder:
-    class: Gember\FileFinderSymfony\SymfonyFinder
-    arguments:
-      - '@gember.file_finder_symfony.symfony_finder_factory'
-
-  gember.file_finder_symfony.symfony_finder_factory:
-    class: Gember\FileFinderSymfony\SymfonyFinderFactory
+    class: Gember\EventSourcing\Util\File\Finder\Native\NativeFinder
 
   gember.event_sourcing.util.file.reflector.reflector:
     class: Gember\EventSourcing\Util\File\Reflector\Native\NativeReflector
