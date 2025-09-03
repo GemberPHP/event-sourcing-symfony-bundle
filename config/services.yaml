@@ -188,7 +188,7 @@ services:
 
   gember.event_sourcing.util.generator.identity.identity_generator: '@gember.identity_generator_symfony.uuid.symfony_uuid_identity_generator'
 
-  Gember\EventSourcing\Util\Generator\Identity\IdentityGenerator: '@gember.event_sourcing.util.generator.identity.identity_generator'
+  Gember\DependencyContracts\Util\Generator\Identity\IdentityGenerator: '@gember.event_sourcing.util.generator.identity.identity_generator'
 
   gember.identity_generator_symfony.uuid.symfony_uuid_identity_generator:
     class: Gember\IdentityGeneratorSymfony\Uuid\SymfonyUuidIdentityGenerator
