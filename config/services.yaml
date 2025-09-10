@@ -95,7 +95,7 @@ services:
     arguments:
       - '@gember.event_sourcing.repository.use_case_repository'
       - '@gember.event_sourcing.registry.command_handler.command_handler_registry'
-      - '@gember.event_sourcing.resolver.domain_event.domain_event_resolver'
+      - '@gember.event_sourcing.resolver.domain_command.domain_command_resolver'
 
   gember.event_sourcing.repository.use_case_repository:
     class: Gember\EventSourcing\Repository\EventSourced\EventSourcedUseCaseRepository
@@ -248,3 +248,16 @@ services:
 
   gember.event_sourcing.resolver.common.domain_tag.interface.interface_domain_tag_resolver:
     class: Gember\EventSourcing\Resolver\Common\DomainTag\Interface\InterfaceDomainTagResolver
+
+  gember.event_sourcing.resolver.domain_command.domain_command_resolver:
+    class: Gember\EventSourcing\Resolver\DomainCommand\Default\DefaultDomainCommandResolver
+    arguments:
+      - '@gember.event_sourcing.resolver.common.domain_tag.domain_tag_resolver'
+
+  gember.event_sourcing.resolver.domain_command.cached.cached_domain_command_resolver_decorator:
+    class: Gember\EventSourcing\Resolver\DomainCommand\Cached\CachedDomainCommandResolverDecorator
+    #decorates: gember.event_sourcing.resolver.domain_command.domain_command_resolver
+    arguments:
+      - '@.inner'
+      - '@gember.psr.simple_cache.cache_interface'
+      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
