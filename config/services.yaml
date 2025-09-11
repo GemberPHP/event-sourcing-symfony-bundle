@@ -75,7 +75,7 @@ services:
     arguments:
       - '@gember.event_sourcing.util.file.finder.finder'
       - '@gember.event_sourcing.util.file.reflector.reflector'
-      - '@gember.event_sourcing.resolver.use_case.command_handlers.command_handlers_resolver'
+      - '@gember.event_sourcing.resolver.use_case.use_case_resolver'
 
   gember.event_sourcing.registry.command_handler.cached.cached_command_handler_registry_decorator:
     class: Gember\EventSourcing\Registry\CommandHandler\Cached\CachedCommandHandlerRegistryDecorator
@@ -84,11 +84,6 @@ services:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
       - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
-
-  gember.event_sourcing.resolver.use_case.command_handlers.command_handlers_resolver:
-    class: Gember\EventSourcing\Resolver\UseCase\CommandHandlers\Attribute\AttributeCommandHandlersResolver
-    arguments:
-      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
 
   Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler:
     class: Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler
@@ -102,25 +97,10 @@ services:
     arguments:
       - '@Gember\EventSourcing\EventStore\EventStore'
       - '@gember.event_sourcing.event_store.domain_event_envelope_factory'
-      - '@gember.event_sourcing.resolver.use_case.subscribed_events.subscribed_events_resolver'
+      - '@gember.event_sourcing.resolver.use_case.use_case_resolver'
       - '@gember.event_sourcing.util.messaging.message_bus.event_bus'
 
   Gember\EventSourcing\Repository\UseCaseRepository: '@gember.event_sourcing.repository.use_case_repository'
-
-  gember.event_sourcing.resolver.use_case.domain_tag_properties.domain_tag_properties_resolver:
-    class: Gember\EventSourcing\Resolver\UseCase\DomainTagProperties\Attribute\AttributeDomainTagsPropertiesResolver
-    arguments:
-      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
-
-  gember.event_sourcing.resolver.use_case.subscribed_events.subscribed_events_resolver:
-    class: Gember\EventSourcing\Resolver\UseCase\SubscribedEvents\Attribute\AttributeSubscribedEventsResolver
-    arguments:
-      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
-
-  gember.event_sourcing.resolver.use_case.subscriber_method_for_event.subscriber_method_for_event_resolver:
-    class: Gember\EventSourcing\Resolver\UseCase\SubscriberMethodForEvent\Attribute\AttributeSubscriberMethodForEventResolver
-    arguments:
-      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
 
   gember.event_sourcing.util.attribute.resolver.attribute_resolver:
     class: Gember\EventSourcing\Util\Attribute\Resolver\Reflector\ReflectorAttributeResolver
@@ -194,8 +174,7 @@ services:
     class: Gember\EventSourcingSymfonyBundle\Listener\InitializeUseCaseAttributeRegistryListener
     tags: ['kernel.event_subscriber']
     arguments:
-      - '@gember.event_sourcing.resolver.use_case.domain_tag_properties.domain_tag_properties_resolver'
-      - '@gember.event_sourcing.resolver.use_case.subscriber_method_for_event.subscriber_method_for_event_resolver'
+      - '@gember.event_sourcing.resolver.use_case.use_case_resolver'
 
   gember.event_sourcing.resolver.domain_event.domain_event_resolver:
     class: Gember\EventSourcing\Resolver\DomainEvent\Default\DefaultDomainEventResolver
