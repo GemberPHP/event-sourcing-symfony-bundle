@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Gember\EventSourcingSymfonyBundle\Listener;
 
+use Gember\EventSourcing\Resolver\UseCase\UseCaseResolver;
 use Gember\EventSourcing\UseCase\UseCaseAttributeRegistry;
-use Gember\EventSourcing\Resolver\UseCase\DomainTagProperties\DomainTagsPropertiesResolver;
-use Gember\EventSourcing\Resolver\UseCase\SubscriberMethodForEvent\SubscriberMethodForEventResolver;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -17,8 +16,7 @@ use Override;
 final readonly class InitializeUseCaseAttributeRegistryListener implements EventSubscriberInterface
 {
     public function __construct(
-        private DomainTagsPropertiesResolver $domainTagPropertiesResolver,
-        private SubscriberMethodForEventResolver $subscriberMethodForEventResolver,
+        private UseCaseResolver $useCaseResolver,
     ) {}
 
     /**
@@ -35,9 +33,6 @@ final readonly class InitializeUseCaseAttributeRegistryListener implements Event
 
     public function onEvent(ConsoleCommandEvent|RequestEvent $event): void
     {
-        UseCaseAttributeRegistry::initialize(
-            $this->domainTagPropertiesResolver,
-            $this->subscriberMethodForEventResolver,
-        );
+        UseCaseAttributeRegistry::initialize($this->useCaseResolver);
     }
 }
