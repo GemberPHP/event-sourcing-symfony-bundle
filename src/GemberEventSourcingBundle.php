@@ -121,6 +121,9 @@ final class GemberEventSourcingBundle extends AbstractBundle
             $services->get('gember.event_sourcing.resolver.domain_command.cached.cached_domain_command_resolver_decorator')
                 ->decorate('gember.event_sourcing.resolver.domain_command.domain_command_resolver');
 
+            $services->get('gember.event_sourcing.resolver.use_case.cached.cached_use_case_resolver_decorator')
+                ->decorate('gember.event_sourcing.resolver.use_case.use_case_resolver');
+
             $cacheType = isset($config['cache']['psr16']) ? 'psr16' : 'psr6';
             $cacheService = ltrim($config['cache'][$cacheType]['service'] ?? 'cache.app', '@');
 

@@ -261,3 +261,28 @@ services:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
       - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
+
+  gember.event_sourcing.resolver.use_case.default.command_handler.command_handler_resolver:
+    class: Gember\EventSourcing\Resolver\UseCase\Default\CommandHandler\Attribute\AttributeCommandHandlerResolver
+    arguments:
+      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
+
+  gember.event_sourcing.resolver.use_case.default.event_subscriber.event_subscriber_resolver:
+    class: Gember\EventSourcing\Resolver\UseCase\Default\EventSubscriber\Attribute\AttributeEventSubscriberResolver
+    arguments:
+      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
+
+  gember.event_sourcing.resolver.use_case.use_case_resolver:
+    class: Gember\EventSourcing\Resolver\UseCase\Default\DefaultUseCaseResolver
+    arguments:
+      - '@gember.event_sourcing.resolver.common.domain_tag.domain_tag_resolver'
+      - '@gember.event_sourcing.resolver.use_case.default.command_handler.command_handler_resolver'
+      - '@gember.event_sourcing.resolver.use_case.default.event_subscriber.event_subscriber_resolver'
+
+  gember.event_sourcing.resolver.use_case.cached.cached_use_case_resolver_decorator:
+    class: Gember\EventSourcing\Resolver\UseCase\Cached\CachedUseCaseResolverDecorator
+    #decorates: gember.event_sourcing.resolver.use_case.use_case_resolver
+    arguments:
+      - '@.inner'
+      - '@gember.psr.simple_cache.cache_interface'
+      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
