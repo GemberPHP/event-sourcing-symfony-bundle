@@ -254,7 +254,7 @@ services:
   gember.event_sourcing.resolver.use_case.use_case_resolver:
     class: Gember\EventSourcing\Resolver\UseCase\Default\DefaultUseCaseResolver
     arguments:
-      - '@gember.event_sourcing.resolver.common.domain_tag.domain_tag_resolver'
+      - '@gember.event_sourcing.resolver.common.domain_tag.attribute.attribute_domain_tag_resolver'
       - '@gember.event_sourcing.resolver.use_case.default.command_handler.command_handler_resolver'
       - '@gember.event_sourcing.resolver.use_case.default.event_subscriber.event_subscriber_resolver'
 
