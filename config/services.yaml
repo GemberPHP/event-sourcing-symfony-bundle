@@ -145,12 +145,12 @@ services:
     class: Gember\EventSourcing\Util\Serialization\Serializer\Stacked\StackedSerializer
     arguments:
       - [
-        '@gember.event_sourcing.util.serialization.serializer.serializable_domain_event.serializable_domain_event_serializer',
+        '@gember.event_sourcing.util.serialization.serializer.interface.serializable_interface_serializer',
         '@gember.serializer_symfony.symfony_serializer'
       ]
 
-  gember.event_sourcing.util.serialization.serializer.serializable_domain_event.serializable_domain_event_serializer:
-    class: Gember\EventSourcing\Util\Serialization\Serializer\SerializableDomainEvent\SerializableDomainEventSerializer
+  gember.event_sourcing.util.serialization.serializer.interface.serializable_interface_serializer:
+    class: Gember\EventSourcing\Util\Serialization\Serializer\Interface\SerializableInterfaceSerializer
 
   gember.serializer_symfony.symfony_serializer:
     class: Gember\SerializerSymfony\SymfonySerializer
@@ -181,6 +181,7 @@ services:
     arguments:
       - '@gember.event_sourcing.resolver.domain_event.default.event_name.event_name_resolver'
       - '@gember.event_sourcing.resolver.common.domain_tag.domain_tag_resolver'
+      - '@gember.event_sourcing.resolver.common.saga_id.saga_id_resolver'
 
   gember.event_sourcing.resolver.domain_event.cached.cached_domain_event_resolver_decorator:
     class: Gember\EventSourcing\Resolver\DomainEvent\Cached\CachedDomainEventResolverDecorator
@@ -265,3 +266,111 @@ services:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
       - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
+
+  gember.event_sourcing.registry.saga.saga_registry:
+    class: Gember\EventSourcing\Registry\Saga\Reflector\ReflectorSagaRegistry
+    arguments:
+      - '@gember.event_sourcing.util.file.finder.finder'
+      - '@gember.event_sourcing.util.file.reflector.reflector'
+      - '@gember.event_sourcing.resolver.saga.saga_resolver'
+      - '@gember.event_sourcing.resolver.saga.default.event_subscriber.saga_event_subscriber_resolver'
+
+  gember.event_sourcing.registry.saga.cached.cached_saga_registry_decorator:
+    class: Gember\EventSourcing\Registry\Saga\Cached\CachedSagaRegistryDecorator
+    #decorates: gember.event_sourcing.registry.saga.saga_registry
+    arguments:
+      - '@.inner'
+      - '@gember.psr.simple_cache.cache_interface'
+
+  gember.event_sourcing.resolver.saga.saga_resolver:
+    class: Gember\EventSourcing\Resolver\Saga\Default\DefaultSagaResolver
+    arguments:
+      - '@gember.event_sourcing.resolver.saga.default.saga_name.saga_name_resolver'
+      - '@gember.event_sourcing.resolver.common.saga_id.saga_id_resolver'
+      - '@gember.event_sourcing.resolver.saga.default.event_subscriber.saga_event_subscriber_resolver'
+
+  gember.event_sourcing.resolver.saga.cached.cached_saga_resolver_decorator:
+    class: Gember\EventSourcing\Resolver\Saga\Cached\CachedSagaResolverDecorator`
+    #decorates: gember.event_sourcing.resolver.saga.saga_resolver
+    arguments:
+      - '@.inner'
+      - '@gember.psr.simple_cache.cache_interface'
+      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
+
+  gember.event_sourcing.resolver.saga.default.saga_name.saga_name_resolver:
+    class: Gember\EventSourcing\Resolver\Saga\Default\SagaName\Stacked\StackedSagaNameResolver
+    arguments:
+      - [
+        '@gember.event_sourcing.resolver.saga.default.saga_name.attribute.attribute_saga_name_resolver',
+        '@gember.event_sourcing.resolver.saga.default.saga_name.interface.interface_saga_name_resolver'
+      ]
+      - '@gember.event_sourcing.resolver.saga.default.saga_name.class_name.class_name_saga_name_resolver'
+
+  gember.event_sourcing.resolver.saga.default.saga_name.attribute.attribute_saga_name_resolver:
+    class: Gember\EventSourcing\Resolver\Saga\Default\SagaName\Attribute\AttributeSagaNameResolver
+    arguments:
+      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
+
+  gember.event_sourcing.resolver.saga.default.saga_name.interface.interface_saga_name_resolver:
+    class: Gember\EventSourcing\Resolver\Saga\Default\SagaName\Interface\InterfaceSagaNameResolver
+
+  gember.event_sourcing.resolver.saga.default.saga_name.class_name.class_name_saga_name_resolver:
+    class: Gember\EventSourcing\Resolver\Saga\Default\SagaName\ClassName\ClassNameSagaNameResolver
+    arguments:
+      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
+
+  gember.event_sourcing.resolver.common.saga_id.saga_id_resolver:
+    class: Gember\EventSourcing\Resolver\Common\SagaId\Attribute\AttributeSagaIdResolver
+    arguments:
+      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
+
+  gember.event_sourcing.resolver.saga.default.event_subscriber.saga_event_subscriber_resolver:
+    class: Gember\EventSourcing\Resolver\Saga\Default\EventSubscriber\Attribute\AttributeSagaEventSubscriberResolver
+    arguments:
+      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
+
+  Gember\EventSourcing\Saga\SagaEventHandler:
+    class: Gember\EventSourcing\Saga\SagaEventHandler
+    arguments:
+      - '@gember.event_sourcing.resolver.domain_event.domain_event_resolver'
+      - '@gember.event_sourcing.registry.saga.saga_registry'
+      - '@gember.event_sourcing.repository.saga_store'
+      - '@gember.event_sourcing.util.messaging.message_bus.command_bus'
+
+  gember.event_sourcing.util.messaging.message_bus.command_bus:
+    class: Gember\MessageBusSymfony\SymfonyCommandBus
+    arguments:
+      - '@gember.symfony.component.messenger.message_bus.command_bus'
+
+  gember.symfony.component.messenger.message_bus.command_bus: '@command.bus'
+
+  gember.event_sourcing.repository.saga_store:
+    class: Gember\EventSourcing\Repository\Rdbms\RdbmsSagaStore
+    arguments:
+      - '@gember.event_sourcing.resolver.saga.saga_resolver'
+      - '@gember.dependency_contracts.event_store.saga.rdbms_saga_store_repository'
+      - '@gember.event_sourcing.repository.rdbms.saga_factory'
+      - '@gember.event_sourcing.util.serialization.serializer.serializer'
+      - '@gember.event_sourcing.util.time.clock.clock'
+
+  gember.event_sourcing.repository.rdbms.saga_factory:
+    class: Gember\EventSourcing\Repository\Rdbms\SagaFactory
+    arguments:
+      - '@gember.event_sourcing.util.serialization.serializer.serializer'
+
+  gember.dependency_contracts.event_store.saga.rdbms_saga_store_repository:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Saga\DoctrineRdbmsSagaStoreRepository
+    arguments:
+      - '@gember.doctrine.dbal.connection'
+      - '@gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_table_schema'
+      - '@gember.rdbms_event_store_doctrine_dbal.saga.doctrine_dbal_rdbms_saga_factory'
+
+  gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_table_schema:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaStoreTableSchema
+    factory: [
+      Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaTableSchemaFactory,
+      'createDefaultSagaStore'
+    ]
+
+  gember.rdbms_event_store_doctrine_dbal.saga.doctrine_dbal_rdbms_saga_factory:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Saga\DoctrineDbalRdbmsSagaFactory
