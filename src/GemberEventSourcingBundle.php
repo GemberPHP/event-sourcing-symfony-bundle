@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Gember\EventSourcingSymfonyBundle;
 
+use Gember\EventSourcing\Saga\Attribute\SagaEventSubscriber;
+use Gember\EventSourcing\Saga\SagaEventHandler;
 use Gember\EventSourcing\UseCase\Attribute\DomainCommandHandler;
 use Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
@@ -210,6 +212,23 @@ final class GemberEventSourcingBundle extends AbstractBundle
 
                 $builder
                     ->getDefinition(UseCaseCommandHandler::class)
+                    ->addTag('messenger.message_handler', [
+                        'bus' => str_starts_with($bus, '@') ? substr($bus, 1) : $bus,
+                        'handles' => $parameter->getType()->getName(),
+                        'method' => '__invoke',
+                    ]);
+            },
+        );
+
+        $builder->registerAttributeForAutoconfiguration(
+            SagaEventSubscriber::class,
+            function (ChildDefinition $definition, SagaEventSubscriber $attribute, ReflectionMethod $reflector) use ($builder, $config): void {
+                $parameter = $reflector->getParameters()[0];
+
+                $bus = $config['message_bus']['symfony']['event_bus'] ?? 'event.bus';
+
+                $builder
+                    ->getDefinition(SagaEventHandler::class)
                     ->addTag('messenger.message_handler', [
                         'bus' => str_starts_with($bus, '@') ? substr($bus, 1) : $bus,
                         'handles' => $parameter->getType()->getName(),
