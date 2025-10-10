@@ -173,6 +173,13 @@ final class GemberEventSourcingBundle extends AbstractBundle
             );
         }
 
+        if (!empty($config['message_bus']['symfony']['command_bus'] ?? null)) {
+            $services->alias(
+                'gember.symfony.component.messenger.message_bus.command_bus',
+                ltrim($config['message_bus']['symfony']['command_bus'], '@'),
+            );
+        }
+
         if (!empty($config['event_store']['rdbms']['doctrine_dbal']['connection'] ?? null)) {
             $services->alias(
                 'gember.doctrine.dbal.connection',
