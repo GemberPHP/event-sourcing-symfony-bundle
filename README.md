@@ -50,6 +50,9 @@ gember_event_sourcing:
                 path: '%kernel.project_dir%/src'
         command_handler:
             reflector:
+                path: '%kernel.project_dir%/src'
+        saga:
+            reflector:
                 path: '%kernel.project_dir%/src' 
 ```
 

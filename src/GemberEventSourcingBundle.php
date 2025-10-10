@@ -56,6 +56,15 @@ final class GemberEventSourcingBundle extends AbstractBundle
                                 ->end()
                             ->end()
                         ->end()
+                        ->arrayNode('saga')
+                            ->children()
+                                ->arrayNode('reflector')
+                                    ->children()
+                                        ->scalarNode('path')->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
                     ->end()
                 ->end()
                 ->arrayNode('message_bus')
@@ -147,6 +156,9 @@ final class GemberEventSourcingBundle extends AbstractBundle
 
         $services->get('gember.event_sourcing.registry.command_handler.command_handler_registry')
             ->arg('$path', $config['registry']['command_handler']['reflector']['path'] ?? '%kernel.project_dir%/src');
+
+        $services->get('gember.event_sourcing.registry.saga.saga_registry')
+            ->arg('$path', $config['registry']['saga']['reflector']['path'] ?? '%kernel.project_dir%/src');
 
         if (!empty($config['message_bus']['symfony']['event_bus'] ?? null)) {
             $services->alias(
