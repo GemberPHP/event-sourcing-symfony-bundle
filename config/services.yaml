@@ -348,7 +348,7 @@ services:
     class: Gember\EventSourcing\Repository\Rdbms\RdbmsSagaStore
     arguments:
       - '@gember.event_sourcing.resolver.saga.saga_resolver'
-      - '@gember.dependency_contracts.event_store.saga.rdbms_saga_store_repository'
+      - '@gember.event_store.saga.rdbms_saga_store_repository'
       - '@gember.event_sourcing.repository.rdbms.saga_factory'
       - '@gember.event_sourcing.util.serialization.serializer.serializer'
       - '@gember.event_sourcing.util.time.clock.clock'
@@ -358,7 +358,7 @@ services:
     arguments:
       - '@gember.event_sourcing.util.serialization.serializer.serializer'
 
-  gember.dependency_contracts.event_store.saga.rdbms_saga_store_repository:
+  gember.event_store.saga.rdbms_saga_store_repository:
     class: Gember\RdbmsEventStoreDoctrineDbal\Saga\DoctrineRdbmsSagaStoreRepository
     arguments:
       - '@gember.doctrine.dbal.connection'
