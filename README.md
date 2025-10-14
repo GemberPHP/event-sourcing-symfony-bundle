@@ -26,7 +26,8 @@ gember_event_sourcing:
             command_bus: '@command.bus'
     cache:
         enabled: true
-        psr6: '@cache.app'
+        psr6: 
+          service: '@cache.app'
 
         # Or set a PSR-16 compatible cache layer of your choice
         # psr16: '@some.psr16.service'
@@ -53,7 +54,9 @@ gember_event_sourcing:
                 path: '%kernel.project_dir%/src'
         saga:
             reflector:
-                path: '%kernel.project_dir%/src' 
+                path: '%kernel.project_dir%/src'
+    logging:
+        logger: '@logger'
 ```
 
 You can override any of these defaults however you like.

@@ -88,9 +88,9 @@ services:
   Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler:
     class: Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler
     arguments:
-      - '@gember.event_sourcing.repository.use_case_repository'
       - '@gember.event_sourcing.registry.command_handler.command_handler_registry'
       - '@gember.event_sourcing.resolver.domain_command.domain_command_resolver'
+      - '@gember.event_sourcing.use_case.command_handler.use_case_command_executor'
 
   gember.event_sourcing.repository.use_case_repository:
     class: Gember\EventSourcing\Repository\EventSourced\EventSourcedUseCaseRepository
@@ -334,8 +334,7 @@ services:
     arguments:
       - '@gember.event_sourcing.resolver.domain_event.domain_event_resolver'
       - '@gember.event_sourcing.registry.saga.saga_registry'
-      - '@gember.event_sourcing.repository.saga_store'
-      - '@gember.event_sourcing.util.messaging.message_bus.command_bus'
+      - '@gember.event_sourcing.saga.saga_event_executor'
 
   gember.event_sourcing.util.messaging.message_bus.command_bus:
     class: Gember\MessageBusSymfony\SymfonyCommandBus
@@ -374,3 +373,37 @@ services:
 
   gember.rdbms_event_store_doctrine_dbal.saga.doctrine_dbal_rdbms_saga_factory:
     class: Gember\RdbmsEventStoreDoctrineDbal\Saga\DoctrineDbalRdbmsSagaFactory
+
+  gember.event_sourcing.use_case.command_handler.use_case_command_executor:
+    class: Gember\EventSourcing\UseCase\CommandHandler\Default\DefaultUseCaseCommandExecutor
+    arguments:
+      - '@gember.event_sourcing.repository.use_case_repository'
+
+  gember.event_sourcing.use_case.command_handler.loggable.loggable_use_case_command_executor_decorator:
+    class: Gember\EventSourcing\UseCase\CommandHandler\Loggable\LoggableUseCaseCommandExecutorDecorator
+    decorates: gember.event_sourcing.use_case.command_handler.use_case_command_executor
+    arguments:
+      - '@.inner'
+      - '@gember.psr.log.logger_interface'
+
+  gember.event_sourcing.saga.saga_event_executor:
+    class: Gember\EventSourcing\Saga\Default\DefaultSagaEventExecutor
+    arguments:
+      - '@gember.event_sourcing.util.messaging.message_bus.command_bus'
+      - '@gember.event_sourcing.repository.saga_store'
+
+  gember.event_sourcing.saga.loggable.loggable_saga_event_executor_decorator:
+    class: Gember\EventSourcing\Saga\Loggable\LoggableSagaEventExecutorDecorator
+    decorates: gember.event_sourcing.saga.saga_event_executor
+    arguments:
+      - '@.inner'
+      - '@gember.psr.log.logger_interface'
+
+  gember.event_sourcing.event_store.loggable.loggable_event_store_decorator:
+    class: Gember\EventSourcing\EventStore\Loggable\LoggableEventStoreDecorator
+    decorates: Gember\EventSourcing\EventStore\EventStore
+    arguments:
+      - '@.inner'
+      - '@gember.psr.log.logger_interface'
+
+  gember.psr.log.logger_interface: '@logger'

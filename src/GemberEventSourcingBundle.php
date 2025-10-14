@@ -110,6 +110,11 @@ final class GemberEventSourcingBundle extends AbstractBundle
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('logging')
+                    ->children()
+                        ->scalarNode('logger')->end()
+                    ->end()
+                ->end()
             ->end();
     }
 
@@ -200,6 +205,13 @@ final class GemberEventSourcingBundle extends AbstractBundle
             $services->alias(
                 'gember.symfony.component.serializer.serializer_interface',
                 ltrim($config['serializer']['symfony']['serializer'], '@'),
+            );
+        }
+
+        if (!empty($config['logging']['logger'] ?? null)) {
+            $services->alias(
+                'gember.psr.log.logger_interface',
+                ltrim($config['logging']['logger'], '@'),
             );
         }
 
