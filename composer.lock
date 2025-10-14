@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "202e59974617eb441aaf5eea2419d014",
+    "content-hash": "418d1b5576f1751cb066ecabc65640c6",
     "packages": [
         {
             "name": "doctrine/dbal",
@@ -218,16 +218,16 @@
         },
         {
             "name": "gember/event-sourcing",
-            "version": "0.10.0",
+            "version": "0.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GemberPHP/event-sourcing.git",
-                "reference": "d133ef34f56332370c5b31bbf0f2f839a1edac03"
+                "reference": "e2fa4678df2addc943bf37015bb339476a1f7130"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GemberPHP/event-sourcing/zipball/d133ef34f56332370c5b31bbf0f2f839a1edac03",
-                "reference": "d133ef34f56332370c5b31bbf0f2f839a1edac03",
+                "url": "https://api.github.com/repos/GemberPHP/event-sourcing/zipball/e2fa4678df2addc943bf37015bb339476a1f7130",
+                "reference": "e2fa4678df2addc943bf37015bb339476a1f7130",
                 "shasum": ""
             },
             "require": {
@@ -235,6 +235,7 @@
                 "ext-tokenizer": "*",
                 "gember/dependency-contracts": "^0.2",
                 "php": "^8.3",
+                "psr/log": "^3.0",
                 "psr/simple-cache": "^3.0"
             },
             "require-dev": {
@@ -276,9 +277,9 @@
             ],
             "support": {
                 "issues": "https://github.com/GemberPHP/event-sourcing/issues",
-                "source": "https://github.com/GemberPHP/event-sourcing/tree/0.10.0"
+                "source": "https://github.com/GemberPHP/event-sourcing/tree/0.11.0"
             },
-            "time": "2025-10-10T13:13:18+00:00"
+            "time": "2025-10-14T17:25:24+00:00"
         },
         {
             "name": "gember/identity-generator-symfony",
