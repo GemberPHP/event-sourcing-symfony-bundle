@@ -362,13 +362,22 @@ services:
     arguments:
       - '@gember.doctrine.dbal.connection'
       - '@gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_table_schema'
+      - '@gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_relation_table_schema'
       - '@gember.rdbms_event_store_doctrine_dbal.saga.doctrine_dbal_rdbms_saga_factory'
+      - '@gember.event_sourcing.util.generator.identity.identity_generator'
 
   gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_table_schema:
     class: Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaStoreTableSchema
     factory: [
       Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaTableSchemaFactory,
       'createDefaultSagaStore'
+    ]
+
+  gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_relation_table_schema:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaStoreRelationTableSchema
+    factory: [
+      Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaTableSchemaFactory,
+      'createDefaultSagaStoreRelation'
     ]
 
   gember.rdbms_event_store_doctrine_dbal.saga.doctrine_dbal_rdbms_saga_factory:
