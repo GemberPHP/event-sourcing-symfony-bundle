@@ -252,6 +252,8 @@ services:
     arguments:
       - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
 
+  Gember\EventSourcing\Resolver\UseCase\UseCaseResolver: '@gember.event_sourcing.resolver.use_case.use_case_resolver'
+
   gember.event_sourcing.resolver.use_case.use_case_resolver:
     class: Gember\EventSourcing\Resolver\UseCase\Default\DefaultUseCaseResolver
     arguments:
