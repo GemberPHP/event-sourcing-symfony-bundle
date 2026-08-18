@@ -23,10 +23,10 @@
     "require": {
         "php": "^8.3",
         "gember/event-sourcing": "^0.14",
-        "gember/identity-generator-symfony": "^0.11",
-        "gember/message-bus-symfony": "^0.11",
+        "gember/identity-generator-symfony": "^0.12",
+        "gember/message-bus-symfony": "^0.12",
         "gember/rdbms-event-store-doctrine-dbal": "^0.12",
-        "gember/serializer-symfony": "^0.11",
+        "gember/serializer-symfony": "^0.12",
         "symfony/config": "^7.1|^7.2|^8.0",
         "symfony/console": "^7.1|^7.2|^8.0",
         "symfony/dependency-injection": "^7.1|^7.2|^8.0",
