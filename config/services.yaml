@@ -35,6 +35,7 @@ services:
       - '@gember.doctrine.dbal.connection'
       - '@gember.rdbms_event_store_doctrine_dbal.table_schema.event_store_table_schema'
       - '@gember.rdbms_event_store_doctrine_dbal.table_schema.event_store_relation_table_schema'
+      - '@gember.rdbms_event_store_doctrine_dbal.table_schema.event_store_lock_table_schema'
       - '@gember.rdbms_event_store_doctrine_dbal.doctrine_dbal_rdbms_event_factory'
 
   gember.doctrine.dbal.connection: '@doctrine.dbal.default_connection'
@@ -51,6 +52,13 @@ services:
     factory: [
       Gember\RdbmsEventStoreDoctrineDbal\TableSchema\TableSchemaFactory,
       'createDefaultEventStoreRelation'
+    ]
+
+  gember.rdbms_event_store_doctrine_dbal.table_schema.event_store_lock_table_schema:
+    class: Gember\RdbmsEventStoreDoctrineDbal\TableSchema\EventStoreLockTableSchema
+    factory: [
+      Gember\RdbmsEventStoreDoctrineDbal\TableSchema\TableSchemaFactory,
+      'createDefaultEventStoreLock'
     ]
 
   gember.rdbms_event_store_doctrine_dbal.doctrine_dbal_rdbms_event_factory:
@@ -365,6 +373,7 @@ services:
       - '@gember.doctrine.dbal.connection'
       - '@gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_table_schema'
       - '@gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_relation_table_schema'
+      - '@gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_lock_table_schema'
       - '@gember.rdbms_event_store_doctrine_dbal.saga.doctrine_dbal_rdbms_saga_factory'
       - '@gember.event_sourcing.util.generator.identity.identity_generator'
 
@@ -380,6 +389,13 @@ services:
     factory: [
       Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaTableSchemaFactory,
       'createDefaultSagaStoreRelation'
+    ]
+
+  gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_lock_table_schema:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaStoreLockTableSchema
+    factory: [
+      Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaTableSchemaFactory,
+      'createDefaultSagaStoreLock'
     ]
 
   gember.rdbms_event_store_doctrine_dbal.saga.doctrine_dbal_rdbms_saga_factory:
