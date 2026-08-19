@@ -300,7 +300,7 @@ services:
       - '@gember.event_sourcing.resolver.saga.default.event_subscriber.saga_event_subscriber_resolver'
 
   gember.event_sourcing.resolver.saga.cached.cached_saga_resolver_decorator:
-    class: Gember\EventSourcing\Resolver\Saga\Cached\CachedSagaResolverDecorator`
+    class: Gember\EventSourcing\Resolver\Saga\Cached\CachedSagaResolverDecorator
     #decorates: gember.event_sourcing.resolver.saga.saga_resolver
     arguments:
       - '@.inner'
