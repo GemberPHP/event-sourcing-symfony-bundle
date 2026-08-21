@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gember\EventSourcingSymfonyBundle\Command;
 
 use Gember\EventSourcing\Outbox\Processor\OutboxProcessor;
+use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
@@ -37,11 +38,13 @@ final class ProcessOutboxCommand extends Command implements SignalableCommandInt
     /**
      * @return list<int>
      */
+    #[Override]
     public function getSubscribedSignals(): array
     {
         return [\SIGINT, \SIGTERM];
     }
 
+    #[Override]
     public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
     {
         $this->shouldStop = true;

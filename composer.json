@@ -22,6 +22,7 @@
     ],
     "require": {
         "php": "^8.3",
+        "ext-pcntl": "*",
         "gember/event-sourcing": "^0.15",
         "gember/identity-generator-symfony": "^0.12",
         "gember/message-bus-symfony": "^0.12",
