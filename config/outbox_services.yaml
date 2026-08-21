@@ -1,0 +1,88 @@
+services:
+  _defaults:
+    public: false
+
+  # Transaction manager (shared Doctrine connection)
+  gember.event_sourcing.outbox.transactional:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Transaction\DoctrineDbalTransactional
+    arguments:
+      - '@gember.doctrine.dbal.connection'
+
+  # Outbox store
+  gember.event_sourcing.outbox.outbox_store:
+    class: Gember\EventSourcing\Outbox\Rdbms\RdbmsOutboxStore
+    arguments:
+      - '@gember.event_sourcing.outbox.rdbms.rdbms_outbox_repository'
+      - '@gember.event_sourcing.util.serialization.serializer.serializer'
+      - '@gember.event_sourcing.util.generator.identity.identity_generator'
+      - '@gember.event_sourcing.util.time.clock.clock'
+
+  # RDBMS outbox repository (same connection = same transaction)
+  gember.event_sourcing.outbox.rdbms.rdbms_outbox_repository:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Outbox\DoctrineDbalRdbmsOutboxRepository
+    arguments:
+      - '@gember.doctrine.dbal.connection'
+      - '@gember.event_sourcing.outbox.table_schema.outbox_table_schema'
+      - '@gember.event_sourcing.outbox.doctrine_dbal_rdbms_outbox_factory'
+
+  gember.event_sourcing.outbox.table_schema.outbox_table_schema:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Outbox\TableSchema\OutboxTableSchema
+    factory: [
+      Gember\RdbmsEventStoreDoctrineDbal\Outbox\TableSchema\OutboxTableSchemaFactory,
+      'createDefault'
+    ]
+
+  gember.event_sourcing.outbox.doctrine_dbal_rdbms_outbox_factory:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Outbox\DoctrineDbalRdbmsOutboxFactory
+
+  # Outbox bus implementations
+  gember.event_sourcing.outbox.bus.outbox_event_bus:
+    class: Gember\EventSourcing\Outbox\Bus\OutboxEventBus
+    arguments:
+      - '@gember.event_sourcing.outbox.outbox_store'
+
+  gember.event_sourcing.outbox.bus.outbox_command_bus:
+    class: Gember\EventSourcing\Outbox\Bus\OutboxCommandBus
+    arguments:
+      - '@gember.event_sourcing.outbox.outbox_store'
+
+  # Transactional decorators
+  gember.event_sourcing.outbox.transactional_use_case_repository:
+    class: Gember\EventSourcing\Repository\Transactional\TransactionalUseCaseRepositoryDecorator
+    #decorates: gember.event_sourcing.repository.use_case_repository
+    arguments:
+      - '@.inner'
+      - '@gember.event_sourcing.outbox.transactional'
+
+  gember.event_sourcing.outbox.transactional_saga_event_executor:
+    class: Gember\EventSourcing\Saga\Transactional\TransactionalSagaEventExecutorDecorator
+    #decorates: gember.event_sourcing.saga.saga_event_executor
+    decoration_priority: -10
+    arguments:
+      - '@.inner'
+      - '@gember.event_sourcing.outbox.transactional'
+
+  # Processor (uses REAL bus implementations for actual dispatch)
+  Gember\EventSourcing\Outbox\Processor\OutboxProcessor:
+    class: Gember\EventSourcing\Outbox\Processor\Default\DefaultOutboxProcessor
+    arguments:
+      - '@gember.event_sourcing.outbox.outbox_store'
+      - '@gember.event_sourcing.outbox.processor.real_event_bus'
+      - '@gember.event_sourcing.outbox.processor.real_command_bus'
+      - '@gember.psr.log.logger_interface'
+
+  gember.event_sourcing.outbox.processor.real_event_bus:
+    class: Gember\MessageBusSymfony\SymfonyEventBus
+    arguments:
+      - '@gember.symfony.component.messenger.message_bus.event_bus'
+
+  gember.event_sourcing.outbox.processor.real_command_bus:
+    class: Gember\MessageBusSymfony\SymfonyCommandBus
+    arguments:
+      - '@gember.symfony.component.messenger.message_bus.command_bus'
+
+  # Console command
+  Gember\EventSourcingSymfonyBundle\Command\ProcessOutboxCommand:
+    arguments:
+      - '@Gember\EventSourcing\Outbox\Processor\OutboxProcessor'
+    tags: ['console.command']
