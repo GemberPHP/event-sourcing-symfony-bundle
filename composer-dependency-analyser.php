@@ -12,4 +12,5 @@ return $config
     ->ignoreErrorsOnPackage('gember/message-bus-symfony', [ErrorType::UNUSED_DEPENDENCY])
     ->ignoreErrorsOnPackage('gember/rdbms-event-store-doctrine-dbal', [ErrorType::UNUSED_DEPENDENCY])
     ->ignoreErrorsOnPackage('gember/serializer-symfony', [ErrorType::UNUSED_DEPENDENCY])
-    ->ignoreErrorsOnPackage('symfony/property-access', [ErrorType::UNUSED_DEPENDENCY]);
+    ->ignoreErrorsOnPackage('symfony/property-access', [ErrorType::UNUSED_DEPENDENCY])
+    ->ignoreUnknownFunctions(['Symfony\Component\DependencyInjection\Loader\Configurator\service']);
