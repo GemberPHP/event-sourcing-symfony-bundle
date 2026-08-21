@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use Override;
 use ReflectionMethod;
 
@@ -115,6 +116,18 @@ final class GemberEventSourcingBundle extends AbstractBundle
                         ->scalarNode('logger')->end()
                     ->end()
                 ->end()
+                ->arrayNode('dispatch')
+                    ->children()
+                        ->enumNode('strategy')
+                            ->values(['direct', 'outbox'])
+                            ->defaultValue('direct')
+                        ->end()
+                        ->integerNode('max_retries')
+                            ->defaultValue(5)
+                            ->min(1)
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
     }
 
@@ -213,6 +226,31 @@ final class GemberEventSourcingBundle extends AbstractBundle
                 'gember.psr.log.logger_interface',
                 ltrim($config['logging']['logger'], '@'),
             );
+        }
+
+        if (($config['dispatch']['strategy'] ?? 'direct') === 'outbox') {
+            $container->import(__DIR__ . '/../config/outbox_services.yaml');
+
+            // Replace event bus with outbox variant
+            $services->get('gember.event_sourcing.util.messaging.message_bus.event_bus')
+                ->class(\Gember\EventSourcing\Outbox\Bus\OutboxEventBus::class)
+                ->args([service('gember.event_sourcing.outbox.outbox_store')]);
+
+            // Replace command bus with outbox variant
+            $services->get('gember.event_sourcing.util.messaging.message_bus.command_bus')
+                ->class(\Gember\EventSourcing\Outbox\Bus\OutboxCommandBus::class)
+                ->args([service('gember.event_sourcing.outbox.outbox_store')]);
+
+            // Activate transactional decorators
+            $services->get('gember.event_sourcing.outbox.transactional_use_case_repository')
+                ->decorate('gember.event_sourcing.repository.use_case_repository');
+
+            $services->get('gember.event_sourcing.outbox.transactional_saga_event_executor')
+                ->decorate('gember.event_sourcing.saga.saga_event_executor');
+
+            // Configure max retries
+            $services->get(\Gember\EventSourcing\Outbox\Processor\OutboxProcessor::class)
+                ->arg('$maxRetries', $config['dispatch']['max_retries'] ?? 5);
         }
 
         $builder->registerAttributeForAutoconfiguration(
