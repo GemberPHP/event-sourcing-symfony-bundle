@@ -6,6 +6,7 @@ namespace Gember\EventSourcingSymfonyBundle;
 
 use Gember\EventSourcing\Saga\Attribute\SagaEventSubscriber;
 use Gember\EventSourcing\Saga\SagaEventHandler;
+use Gember\EventSourcing\Snapshot\Policy\SnapshotPolicy;
 use Gember\EventSourcing\UseCase\Attribute\DomainCommandHandler;
 use Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
@@ -114,6 +115,11 @@ final class GemberEventSourcingBundle extends AbstractBundle
                 ->arrayNode('logging')
                     ->children()
                         ->scalarNode('logger')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('snapshot')
+                    ->children()
+                        ->booleanNode('enabled')->defaultFalse()->end()
                     ->end()
                 ->end()
                 ->arrayNode('dispatch')
@@ -228,6 +234,23 @@ final class GemberEventSourcingBundle extends AbstractBundle
             );
         }
 
+        // Snapshot decorator must be activated BEFORE the transactional decorator (outbox).
+        // Symfony's later decorates() calls wrap earlier ones, resulting in:
+        // Transactional(Snapshot(EventSourced)) — snapshot save happens inside the transaction.
+        if ($config['snapshot']['enabled'] ?? false) {
+            $services->get('gember.event_sourcing.repository.snapshot.snapshot_use_case_repository_decorator')
+                ->decorate('gember.event_sourcing.repository.use_case_repository');
+        } else {
+            $services->remove('gember.event_store.snapshot.rdbms_snapshot_store_repository');
+            $services->remove('gember.event_sourcing.snapshot.snapshot_store');
+            $services->remove('gember.rdbms_event_store_doctrine_dbal.snapshot.table_schema.snapshot_store_table_schema');
+            $services->remove('gember.event_sourcing.snapshot.policy.after_events');
+            $services->remove('gember.event_sourcing.snapshot.policy.after_sourcing_time');
+            $services->remove('gember.event_sourcing.snapshot.policy.on_events');
+            $services->remove('gember.event_sourcing.snapshot.loggable.loggable_snapshot_store_decorator');
+            $services->remove('gember.event_sourcing.repository.snapshot.snapshot_use_case_repository_decorator');
+        }
+
         if (($config['dispatch']['strategy'] ?? 'direct') === 'outbox') {
             $container->import(__DIR__ . '/../config/outbox_services.yaml');
 
@@ -286,5 +309,8 @@ final class GemberEventSourcingBundle extends AbstractBundle
                     ]);
             },
         );
+
+        $builder->registerForAutoconfiguration(SnapshotPolicy::class)
+            ->addTag('gember.snapshot.policy');
     }
 }
