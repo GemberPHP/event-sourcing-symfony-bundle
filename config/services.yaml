@@ -268,6 +268,12 @@ services:
       - '@gember.event_sourcing.resolver.common.domain_tag.attribute.attribute_domain_tag_resolver'
       - '@gember.event_sourcing.resolver.use_case.default.command_handler.command_handler_resolver'
       - '@gember.event_sourcing.resolver.use_case.default.event_subscriber.event_subscriber_resolver'
+      - '@gember.event_sourcing.resolver.use_case.default.snapshot.snapshot_resolver'
+
+  gember.event_sourcing.resolver.use_case.default.snapshot.snapshot_resolver:
+    class: Gember\EventSourcing\Resolver\UseCase\Default\Snapshot\Attribute\AttributeSnapshotResolver
+    arguments:
+      - '@gember.event_sourcing.util.attribute.resolver.attribute_resolver'
 
   gember.event_sourcing.resolver.use_case.cached.cached_use_case_resolver_decorator:
     class: Gember\EventSourcing\Resolver\UseCase\Cached\CachedUseCaseResolverDecorator
@@ -434,3 +440,56 @@ services:
       - '@gember.psr.log.logger_interface'
 
   gember.psr.log.logger_interface: '@logger'
+
+  # Snapshot store
+  gember.rdbms_event_store_doctrine_dbal.snapshot.table_schema.snapshot_store_table_schema:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Snapshot\TableSchema\SnapshotStoreTableSchema
+    factory: [
+      Gember\RdbmsEventStoreDoctrineDbal\Snapshot\TableSchema\SnapshotTableSchemaFactory,
+      'createDefault'
+    ]
+
+  gember.event_store.snapshot.rdbms_snapshot_store_repository:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Snapshot\DoctrineDbalRdbmsSnapshotStoreRepository
+    arguments:
+      - '@gember.doctrine.dbal.connection'
+      - '@gember.rdbms_event_store_doctrine_dbal.snapshot.table_schema.snapshot_store_table_schema'
+
+  gember.event_sourcing.snapshot.snapshot_store:
+    class: Gember\EventSourcing\Snapshot\Rdbms\RdbmsSnapshotStore
+    arguments:
+      - '@gember.event_store.snapshot.rdbms_snapshot_store_repository'
+
+  # Snapshot policies
+  gember.event_sourcing.snapshot.policy.after_events:
+    class: Gember\EventSourcing\Snapshot\Policy\AfterEventsSnapshotPolicy
+    tags: ['gember.snapshot.policy']
+
+  gember.event_sourcing.snapshot.policy.after_sourcing_time:
+    class: Gember\EventSourcing\Snapshot\Policy\AfterSourcingTimeSnapshotPolicy
+    tags: ['gember.snapshot.policy']
+
+  gember.event_sourcing.snapshot.policy.on_events:
+    class: Gember\EventSourcing\Snapshot\Policy\OnEventsSnapshotPolicy
+    tags: ['gember.snapshot.policy']
+
+  # Snapshot logging decorator
+  gember.event_sourcing.snapshot.loggable.loggable_snapshot_store_decorator:
+    class: Gember\EventSourcing\Snapshot\Loggable\LoggableSnapshotStoreDecorator
+    decorates: gember.event_sourcing.snapshot.snapshot_store
+    arguments:
+      - '@.inner'
+      - '@gember.psr.log.logger_interface'
+
+  # Snapshot decorator
+  gember.event_sourcing.repository.snapshot.snapshot_use_case_repository_decorator:
+    class: Gember\EventSourcing\Repository\Snapshot\SnapshotUseCaseRepositoryDecorator
+    #decorates: gember.event_sourcing.repository.use_case_repository
+    arguments:
+      - '@.inner'
+      - '@Gember\EventSourcing\EventStore\EventStore'
+      - '@gember.event_sourcing.resolver.use_case.use_case_resolver'
+      - '@gember.event_sourcing.snapshot.snapshot_store'
+      - '@gember.event_sourcing.util.serialization.serializer.serializer'
+      - !tagged_iterator gember.snapshot.policy
+      - '@gember.psr.log.logger_interface'
