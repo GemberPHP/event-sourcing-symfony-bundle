@@ -459,6 +459,8 @@ services:
     class: Gember\EventSourcing\Snapshot\Rdbms\RdbmsSnapshotStore
     arguments:
       - '@gember.event_store.snapshot.rdbms_snapshot_store_repository'
+      - '@gember.event_sourcing.util.generator.identity.identity_generator'
+      - '@gember.event_sourcing.util.time.clock.clock'
 
   # Snapshot policies
   gember.event_sourcing.snapshot.policy.after_events:
