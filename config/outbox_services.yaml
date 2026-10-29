@@ -3,10 +3,7 @@ services:
     public: false
 
   # Transaction manager (shared Doctrine connection)
-  gember.event_sourcing.outbox.transactional:
-    class: Gember\RdbmsEventStoreDoctrineDbal\Transaction\DoctrineDbalTransactional
-    arguments:
-      - '@gember.doctrine.dbal.connection'
+  gember.event_sourcing.outbox.transactional: '@gember.event_sourcing.util.transaction.transactional'
 
   # Outbox store
   gember.event_sourcing.outbox.outbox_store:
@@ -57,7 +54,6 @@ services:
   gember.event_sourcing.outbox.transactional_saga_event_executor:
     class: Gember\EventSourcing\Saga\Transactional\TransactionalSagaEventExecutorDecorator
     #decorates: gember.event_sourcing.saga.saga_event_executor
-    decoration_priority: -10
     arguments:
       - '@.inner'
       - '@gember.event_sourcing.outbox.transactional'
