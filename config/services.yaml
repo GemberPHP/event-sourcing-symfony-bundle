@@ -379,7 +379,6 @@ services:
       - '@gember.doctrine.dbal.connection'
       - '@gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_table_schema'
       - '@gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_relation_table_schema'
-      - '@gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_lock_table_schema'
       - '@gember.rdbms_event_store_doctrine_dbal.saga.doctrine_dbal_rdbms_saga_factory'
       - '@gember.event_sourcing.util.generator.identity.identity_generator'
 
@@ -395,13 +394,6 @@ services:
     factory: [
       Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaTableSchemaFactory,
       'createDefaultSagaStoreRelation'
-    ]
-
-  gember.rdbms_event_store_doctrine_dbal.saga.table_schema.saga_store_lock_table_schema:
-    class: Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaStoreLockTableSchema
-    factory: [
-      Gember\RdbmsEventStoreDoctrineDbal\Saga\TableSchema\SagaTableSchemaFactory,
-      'createDefaultSagaStoreLock'
     ]
 
   gember.rdbms_event_store_doctrine_dbal.saga.doctrine_dbal_rdbms_saga_factory:
@@ -431,6 +423,14 @@ services:
     arguments:
       - '@.inner'
       - '@gember.psr.log.logger_interface'
+
+  # Outermost: each retry runs in its own transaction (outbox mode)
+  gember.event_sourcing.saga.retrying.retrying_saga_event_executor_decorator:
+    class: Gember\EventSourcing\Saga\Retrying\RetryingSagaEventExecutorDecorator
+    decorates: gember.event_sourcing.saga.saga_event_executor
+    decoration_priority: -100
+    arguments:
+      - '@.inner'
 
   gember.event_sourcing.event_store.loggable.loggable_event_store_decorator:
     class: Gember\EventSourcing\EventStore\Loggable\LoggableEventStoreDecorator
