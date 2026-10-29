@@ -424,13 +424,21 @@ services:
       - '@.inner'
       - '@gember.psr.log.logger_interface'
 
-  # Outermost: each retry runs in its own transaction (outbox mode)
+  # Transaction manager (shared Doctrine connection)
+  gember.event_sourcing.util.transaction.transactional:
+    class: Gember\RdbmsEventStoreDoctrineDbal\Transaction\DoctrineDbalTransactional
+    arguments:
+      - '@gember.doctrine.dbal.connection'
+
+  # Outermost: each retry runs in its own transaction (outbox mode); no retries inside a transaction it didn't open
   gember.event_sourcing.saga.retrying.retrying_saga_event_executor_decorator:
     class: Gember\EventSourcing\Saga\Retrying\RetryingSagaEventExecutorDecorator
     decorates: gember.event_sourcing.saga.saga_event_executor
     decoration_priority: -100
     arguments:
       - '@.inner'
+      - '@gember.event_sourcing.util.transaction.transactional'
+      - '@gember.psr.log.logger_interface'
 
   gember.event_sourcing.event_store.loggable.loggable_event_store_decorator:
     class: Gember\EventSourcing\EventStore\Loggable\LoggableEventStoreDecorator
