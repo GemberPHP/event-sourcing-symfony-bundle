@@ -10,7 +10,7 @@ $config = new Configuration();
 return $config
     ->ignoreErrorsOnPackage('gember/identity-generator-symfony', [ErrorType::UNUSED_DEPENDENCY])
     ->ignoreErrorsOnPackage('gember/message-bus-symfony', [ErrorType::UNUSED_DEPENDENCY])
-    ->ignoreErrorsOnPackage('gember/rdbms-event-store-doctrine-dbal', [ErrorType::UNUSED_DEPENDENCY])
+    ->ignoreErrorsOnPackage('gember/rdbms-event-store-doctrine-dbal', [ErrorType::PROD_DEPENDENCY_ONLY_IN_DEV]) // Used by config/*.yaml
     ->ignoreErrorsOnPackage('gember/serializer-symfony', [ErrorType::UNUSED_DEPENDENCY])
     ->ignoreErrorsOnPackage('symfony/property-access', [ErrorType::UNUSED_DEPENDENCY])
     ->ignoreUnknownFunctions(['Symfony\Component\DependencyInjection\Loader\Configurator\service']);
