@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $finder = (new PhpCsFixer\Finder())
-    ->in(['src'])
+    ->in(['src', 'tests'])
     ->notName('GemberEventSourcingBundle.php');
 
 return (new PhpCsFixer\Config())
