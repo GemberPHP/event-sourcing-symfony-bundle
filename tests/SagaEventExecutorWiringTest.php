@@ -103,14 +103,14 @@ final class SagaEventExecutorWiringTest extends TestCase
         $this->builder->setParameter('kernel.environment', 'test');
         $this->builder->setParameter('kernel.debug', false);
 
-        $extension = new GemberEventSourcingBundle()->getContainerExtension();
+        $extension = (new GemberEventSourcingBundle())->getContainerExtension();
         self::assertNotNull($extension);
 
         $this->builder->registerExtension($extension);
         $this->builder->loadFromExtension($extension->getAlias(), ['dispatch' => ['strategy' => $dispatchStrategy]]);
 
         foreach (self::EXTERNAL_SERVICES as $id) {
-            $this->builder->setDefinition($id, new Definition(stdClass::class)->setSynthetic(true)->setPublic(true));
+            $this->builder->setDefinition($id, (new Definition(stdClass::class))->setSynthetic(true)->setPublic(true));
         }
 
         // Keep the (private) executor after compiling, so its decorators can be inspected. Once decorated, its id is
