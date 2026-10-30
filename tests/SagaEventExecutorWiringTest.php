@@ -100,6 +100,7 @@ final class SagaEventExecutorWiringTest extends TestCase
         $this->builder = new ContainerBuilder();
         $this->builder->setParameter('kernel.project_dir', sys_get_temp_dir());
         $this->builder->setParameter('kernel.cache_dir', sys_get_temp_dir());
+        $this->builder->setParameter('kernel.build_dir', sys_get_temp_dir());
         $this->builder->setParameter('kernel.environment', 'test');
         $this->builder->setParameter('kernel.debug', false);
 
