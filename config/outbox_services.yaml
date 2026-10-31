@@ -13,6 +13,7 @@ services:
       - '@gember.event_sourcing.util.serialization.serializer.serializer'
       - '@gember.event_sourcing.util.generator.identity.identity_generator'
       - '@gember.event_sourcing.util.time.clock.clock'
+      - '@gember.psr.log.logger_interface'
 
   # RDBMS outbox repository (same connection = same transaction)
   gember.event_sourcing.outbox.rdbms.rdbms_outbox_repository:
