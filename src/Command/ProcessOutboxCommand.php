@@ -80,8 +80,14 @@ final class ProcessOutboxCommand extends Command implements SignalableCommandInt
 
         $startTime = time();
 
-        while (!$this->shouldStop) {
+        while (true) {
             usleep($intervalUs);
+
+            // Checked after the sleep, which a stop signal interrupts: don't claim another batch that may not finish
+            // before the process is killed
+            if ($this->shouldStop) {
+                break;
+            }
 
             $this->outboxProcessor->process(limit: $limit);
 

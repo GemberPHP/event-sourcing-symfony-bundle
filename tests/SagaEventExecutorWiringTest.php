@@ -30,6 +30,7 @@ use Symfony\Component\DependencyInjection\Reference;
 final class SagaEventExecutorWiringTest extends TestCase
 {
     public const string SAGA_EVENT_EXECUTOR = 'gember.event_sourcing.saga.saga_event_executor';
+    public const string OUTBOX_STORE = 'gember.event_sourcing.outbox.outbox_store';
 
     /**
      * Services provided by the application (DoctrineBundle, FrameworkBundle, MonologBundle, ...).
@@ -83,6 +84,15 @@ final class SagaEventExecutorWiringTest extends TestCase
         self::assertEquals(new Reference('doctrine.dbal.default_connection'), $transactional->getArgument(0));
     }
 
+    #[Test]
+    public function itShouldPassTheLoggerToTheOutboxStore(): void
+    {
+        $this->compileDecoratorChain('outbox');
+
+        // Messages that can't be deserialized are dead-lettered: logged as an error
+        self::assertEquals(new Reference('logger'), $this->builder->findDefinition(self::OUTBOX_STORE)->getArgument(4));
+    }
+
     private function assertRetryingDecoratorArguments(Definition $retrying): void
     {
         $transactional = $this->resolve($retrying->getArgument(1));
@@ -114,12 +124,16 @@ final class SagaEventExecutorWiringTest extends TestCase
             $this->builder->setDefinition($id, (new Definition(stdClass::class))->setSynthetic(true)->setPublic(true));
         }
 
-        // Keep the (private) executor after compiling, so its decorators can be inspected. Once decorated, its id is
-        // an alias of the outermost decorator.
+        // Keep the (private) executor and outbox store after compiling, so they can be inspected. Once decorated, the
+        // executor's id is an alias of the outermost decorator.
         $this->builder->addCompilerPass(new class implements CompilerPassInterface {
             #[Override]
             public function process(ContainerBuilder $container): void
             {
+                if ($container->hasDefinition(SagaEventExecutorWiringTest::OUTBOX_STORE)) {
+                    $container->getDefinition(SagaEventExecutorWiringTest::OUTBOX_STORE)->setPublic(true);
+                }
+
                 $id = SagaEventExecutorWiringTest::SAGA_EVENT_EXECUTOR;
 
                 if ($container->hasAlias($id)) {
