@@ -11,6 +11,15 @@ Install the Symfony Bundle with composer:
 composer require gember/event-sourcing-symfony-bundle 
 ```
 
+Symfony Flex enables the bundle automatically. Without Flex, add it to `config/bundles.php`:
+
+```php
+return [
+    // ...
+    Gember\EventSourcingSymfonyBundle\GemberEventSourcingBundle::class => ['all' => true],
+];
+```
+
 This package requires Symfony `^7.1`.
 
 ## Configuration

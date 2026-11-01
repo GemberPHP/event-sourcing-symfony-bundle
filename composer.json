@@ -2,7 +2,7 @@
     "name": "gember/event-sourcing-symfony-bundle",
     "description": "Symfony Bundle for Gember Event Sourcing (gember/event-sourcing)",
     "license": "MIT",
-    "type": "library",
+    "type": "symfony-bundle",
     "keywords": [
         "gember",
         "event-sourcing",
