@@ -1,4 +1,5 @@
 # 🫚 Gember Event Sourcing Symfony Bundle
+[![Build Status](https://github.com/GemberPHP/event-sourcing-symfony-bundle/actions/workflows/test.yaml/badge.svg?branch=main)](https://github.com/GemberPHP/event-sourcing-symfony-bundle/actions/workflows/test.yaml)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.3-8892BF.svg?style=flat)](http://www.php.net)
 
