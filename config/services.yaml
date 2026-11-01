@@ -91,7 +91,6 @@ services:
     arguments:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
-      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
 
   Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler:
     class: Gember\EventSourcing\UseCase\CommandHandler\UseCaseCommandHandler
@@ -197,7 +196,6 @@ services:
     arguments:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
-      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
 
   gember.event_sourcing.resolver.domain_event.default.event_name.event_name_resolver:
     class: Gember\EventSourcing\Resolver\DomainEvent\Default\EventName\Stacked\StackedEventNameResolver
@@ -248,7 +246,6 @@ services:
     arguments:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
-      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
 
   gember.event_sourcing.resolver.use_case.default.command_handler.command_handler_resolver:
     class: Gember\EventSourcing\Resolver\UseCase\Default\CommandHandler\Attribute\AttributeCommandHandlerResolver
@@ -281,7 +278,6 @@ services:
     arguments:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
-      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
 
   gember.event_sourcing.registry.saga.saga_registry:
     class: Gember\EventSourcing\Registry\Saga\Reflector\ReflectorSagaRegistry
@@ -311,7 +307,6 @@ services:
     arguments:
       - '@.inner'
       - '@gember.psr.simple_cache.cache_interface'
-      - '@gember.event_sourcing.util.string.friendly_class_namer.friendly_class_namer'
 
   gember.event_sourcing.resolver.saga.default.saga_name.saga_name_resolver:
     class: Gember\EventSourcing\Resolver\Saga\Default\SagaName\Stacked\StackedSagaNameResolver
