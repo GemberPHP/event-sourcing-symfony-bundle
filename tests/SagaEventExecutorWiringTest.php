@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Gember\EventSourcingSymfonyBundle\Test;
 
+use Gember\EventSourcing\Outbox\Bus\OutboxCommandBus;
+use Gember\EventSourcing\Outbox\Processor\OutboxProcessor;
 use Gember\EventSourcing\Saga\Default\DefaultSagaEventExecutor;
 use Gember\EventSourcing\Saga\Loggable\LoggableSagaEventExecutorDecorator;
 use Gember\EventSourcing\Saga\Retrying\RetryingSagaEventExecutorDecorator;
 use Gember\EventSourcing\Saga\Transactional\TransactionalSagaEventExecutorDecorator;
 use Gember\EventSourcingSymfonyBundle\GemberEventSourcingBundle;
+use Gember\MessageBusSymfony\SymfonyCommandBus;
 use Gember\RdbmsEventStoreDoctrineDbal\Transaction\DoctrineDbalTransactional;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,7 +26,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * Compiles the container and asserts the saga event executor's decorators: the retrying decorator must be the
  * outermost one (so each attempt runs in its own transaction) and needs the transaction manager to detect a
- * transaction it didn't open.
+ * transaction it didn't open. Also asserts which command bus delivers the commands recorded by sagas.
  *
  * @internal
  */
@@ -31,6 +34,8 @@ final class SagaEventExecutorWiringTest extends TestCase
 {
     public const string SAGA_EVENT_EXECUTOR = 'gember.event_sourcing.saga.saga_event_executor';
     public const string OUTBOX_STORE = 'gember.event_sourcing.outbox.outbox_store';
+    public const string OUTBOX_PROCESSOR = OutboxProcessor::class;
+    private const string SAGA_COMMAND_BUS = 'app.saga_command_bus';
 
     /**
      * Services provided by the application (DoctrineBundle, FrameworkBundle, MonologBundle, ...).
@@ -46,6 +51,7 @@ final class SagaEventExecutorWiringTest extends TestCase
         'cache.app',
         'Symfony\Component\Uid\Factory\UuidFactory',
         'Symfony\Component\Uid\Factory\UlidFactory',
+        self::SAGA_COMMAND_BUS,
     ];
 
     private ContainerBuilder $builder;
@@ -93,6 +99,51 @@ final class SagaEventExecutorWiringTest extends TestCase
         self::assertEquals(new Reference('logger'), $this->builder->findDefinition(self::OUTBOX_STORE)->getArgument(4));
     }
 
+    #[Test]
+    public function itShouldDispatchSagaCommandsOnTheMessengerCommandBusInDirectModeByDefault(): void
+    {
+        $chain = $this->compileDecoratorChain('direct');
+
+        $this->assertMessengerCommandBus(end($chain)->getArgument(0));
+    }
+
+    #[Test]
+    public function itShouldDispatchSagaCommandsOnTheConfiguredCommandBusInDirectMode(): void
+    {
+        $chain = $this->compileDecoratorChain('direct', self::SAGA_COMMAND_BUS);
+
+        self::assertEquals(new Reference(self::SAGA_COMMAND_BUS), end($chain)->getArgument(0));
+    }
+
+    #[Test]
+    public function itShouldDeliverSagaCommandsFromTheOutboxOnTheMessengerCommandBusByDefault(): void
+    {
+        $chain = $this->compileDecoratorChain('outbox');
+
+        self::assertSame(OutboxCommandBus::class, $this->resolve(end($chain)->getArgument(0))->getClass());
+        $this->assertMessengerCommandBus($this->builder->findDefinition(self::OUTBOX_PROCESSOR)->getArgument(2));
+    }
+
+    #[Test]
+    public function itShouldDeliverSagaCommandsFromTheOutboxOnTheConfiguredCommandBus(): void
+    {
+        $chain = $this->compileDecoratorChain('outbox', self::SAGA_COMMAND_BUS);
+
+        // Recording stays in the outbox, atomic with the saga save
+        self::assertSame(OutboxCommandBus::class, $this->resolve(end($chain)->getArgument(0))->getClass());
+        self::assertEquals(
+            new Reference(self::SAGA_COMMAND_BUS),
+            $this->builder->findDefinition(self::OUTBOX_PROCESSOR)->getArgument(2),
+        );
+    }
+
+    private function assertMessengerCommandBus(mixed $argument): void
+    {
+        $commandBus = $this->resolve($argument);
+        self::assertSame(SymfonyCommandBus::class, $commandBus->getClass());
+        self::assertEquals(new Reference('command.bus'), $commandBus->getArgument(0));
+    }
+
     private function assertRetryingDecoratorArguments(Definition $retrying): void
     {
         $transactional = $this->resolve($retrying->getArgument(1));
@@ -103,9 +154,9 @@ final class SagaEventExecutorWiringTest extends TestCase
     }
 
     /**
-     * @return list<Definition> Outermost decorator first
+     * @return non-empty-list<Definition> Outermost decorator first
      */
-    private function compileDecoratorChain(string $dispatchStrategy): array
+    private function compileDecoratorChain(string $dispatchStrategy, ?string $sagaCommandBus = null): array
     {
         $this->builder = new ContainerBuilder();
         $this->builder->setParameter('kernel.project_dir', sys_get_temp_dir());
@@ -118,20 +169,28 @@ final class SagaEventExecutorWiringTest extends TestCase
         self::assertNotNull($extension);
 
         $this->builder->registerExtension($extension);
-        $this->builder->loadFromExtension($extension->getAlias(), ['dispatch' => ['strategy' => $dispatchStrategy]]);
+        $config = ['dispatch' => ['strategy' => $dispatchStrategy]];
+
+        if ($sagaCommandBus !== null) {
+            $config['saga'] = ['command_bus' => '@' . $sagaCommandBus];
+        }
+
+        $this->builder->loadFromExtension($extension->getAlias(), $config);
 
         foreach (self::EXTERNAL_SERVICES as $id) {
             $this->builder->setDefinition($id, (new Definition(stdClass::class))->setSynthetic(true)->setPublic(true));
         }
 
-        // Keep the (private) executor and outbox store after compiling, so they can be inspected. Once decorated, the
+        // Keep the (private) executor, outbox store and outbox processor after compiling, so they can be inspected. Once decorated, the
         // executor's id is an alias of the outermost decorator.
         $this->builder->addCompilerPass(new class implements CompilerPassInterface {
             #[Override]
             public function process(ContainerBuilder $container): void
             {
-                if ($container->hasDefinition(SagaEventExecutorWiringTest::OUTBOX_STORE)) {
-                    $container->getDefinition(SagaEventExecutorWiringTest::OUTBOX_STORE)->setPublic(true);
+                foreach ([SagaEventExecutorWiringTest::OUTBOX_STORE, SagaEventExecutorWiringTest::OUTBOX_PROCESSOR] as $id) {
+                    if ($container->hasDefinition($id)) {
+                        $container->getDefinition($id)->setPublic(true);
+                    }
                 }
 
                 $id = SagaEventExecutorWiringTest::SAGA_EVENT_EXECUTOR;
