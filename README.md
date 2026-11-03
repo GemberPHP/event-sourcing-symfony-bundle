@@ -70,6 +70,8 @@ gember_event_sourcing:
         logger: '@logger'
     snapshot:
         enabled: false      # see the Snapshotting docs
+    saga:
+        # command_bus: '@some.command_bus'   # commands recorded by sagas; defaults to message_bus.symfony.command_bus, see below
     dispatch:
         strategy: direct    # 'direct' or 'outbox', see the Outbox docs
         max_retries: 5      # outbox only
@@ -98,6 +100,11 @@ framework:
 ```
 
 Other buses can be configured with `message_bus.symfony.event_bus` and `command_bus`; they must be services implementing `Symfony\Component\Messenger\MessageBusInterface`.
+
+#### Saga command bus
+Commands recorded by sagas are dispatched on `message_bus.symfony.command_bus` by default. To dispatch them differently (for example asynchronously) without affecting the commands your application dispatches, set `saga.command_bus` to a service implementing `Gember\DependencyContracts\Util\Messaging\MessageBus\CommandBus`. With the outbox strategy, sagas still record their commands in the outbox, and the outbox processor delivers them through this service.
+
+With an asynchronous saga command bus, use the outbox strategy for at-least-once delivery, and make the use cases handling these commands idempotent. With the direct strategy, a command can be lost when dispatching it fails after the saga is saved.
 
 ### Symfony Cache (`symfony/cache`)
 When caching is enabled, _Gember Event Sourcing_ makes use of `@cache.app` by default.

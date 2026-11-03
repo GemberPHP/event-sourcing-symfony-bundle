@@ -122,6 +122,11 @@ final class GemberEventSourcingBundle extends AbstractBundle
                         ->booleanNode('enabled')->defaultFalse()->end()
                     ->end()
                 ->end()
+                ->arrayNode('saga')
+                    ->children()
+                        ->scalarNode('command_bus')->end()
+                    ->end()
+                ->end()
                 ->arrayNode('dispatch')
                     ->children()
                         ->enumNode('strategy')
@@ -274,6 +279,17 @@ final class GemberEventSourcingBundle extends AbstractBundle
             // Configure max retries
             $services->get(\Gember\EventSourcing\Outbox\Processor\OutboxProcessor::class)
                 ->arg('$maxRetries', $config['dispatch']['max_retries'] ?? 5);
+
+            // Saga commands are the only commands in the outbox: the processor delivers them through the saga command bus
+            if (!empty($config['saga']['command_bus'] ?? null)) {
+                $services->alias(
+                    'gember.event_sourcing.outbox.processor.real_command_bus',
+                    ltrim($config['saga']['command_bus'], '@'),
+                );
+            }
+        } elseif (!empty($config['saga']['command_bus'] ?? null)) {
+            $services->get('gember.event_sourcing.saga.saga_event_executor')
+                ->arg(0, service(ltrim($config['saga']['command_bus'], '@')));
         }
 
         $builder->registerAttributeForAutoconfiguration(
